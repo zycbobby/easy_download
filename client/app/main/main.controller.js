@@ -9,6 +9,14 @@ angular.module('easyDownloadApp')
       socket.syncUpdates('thing', $scope.awesomeThings);
     });
 
+    $scope.parseUrl = function() {
+      $http.post('/api/things/parse', { url : $scope.newThingUrl }).success(function(data, status, headers, config){
+        console.log(data);
+      }).error(function(data, status, headers, config){
+        console.log(data);
+      });
+    };
+
     $scope.addThing = function() {
       if($scope.newThing === '') {
         return;
