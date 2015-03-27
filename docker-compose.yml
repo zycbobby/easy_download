@@ -1,0 +1,13 @@
+web:
+  build: .
+  links:
+   - mongo:db #An entry with the alias' name will be created in /etc/hosts inside containers for this service, e.g:
+  ports:
+   - "80:9000"
+  environment:
+   - MONGOLAB_URI=mongodb://db:27017/easydownload-dev
+mongo:
+  image: mongo:latest
+  expose: # Expose ports without publishing them to the host machine - they'll only be accessible to linked services.
+   - "27017"
+   - "28017"

@@ -1,6 +1,5 @@
 'use strict';
 
-var jsdom = require('jsdom');
 var Crawler = require('crawler');
 var crawler = new Crawler();
 
