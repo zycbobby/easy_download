@@ -33,6 +33,8 @@ exports.parse = function(req, res) {
 
   parser.getThing().then(function(thing) {
     res.send(200, thing);
+  }, function(error) {
+    res.send(500, error);
   });
 
 };
