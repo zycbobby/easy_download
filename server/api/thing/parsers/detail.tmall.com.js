@@ -21,9 +21,17 @@ tmallCrawler.prototype.getThing = function() {
     } else {
       var thing = new Thing();
       thing.url = self.url;
+      console.log(result.uri);
+      console.log(self.url);
+      if (result.uri !== self.url ) {
+        console.log('be redirected');
+      }
       thing.name = $('meta[name="keywords"]')[0].attribs.content;
       thing.info = $('meta[name="description"]')[0].attribs.content;
-      defer.resolve(thing);
+      defer.resolve({
+        thing : thing,
+        result : result
+      });
     }
 
   });
