@@ -1,7 +1,10 @@
 FROM google/nodejs
 
-WORKDIR /app
+
 ADD ./dist /app
+
+WORKDIR /app/dist
+
 RUN npm install --production
 
 ENV PORT 9000
