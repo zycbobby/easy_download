@@ -8,5 +8,8 @@ module.exports = {
     uri: 'mongodb://localhost:27017/easydownload-dev'
   },
 
+  itemCron : '*/5 * * * * *',
+  thingCron : '*/10 * * * * *',
+
   seedDB: true
 };

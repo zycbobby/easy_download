@@ -2,25 +2,23 @@
 
 var mongoose = require('mongoose'),
   Schema = mongoose.Schema,
+  Item = require('../item/item.model'),
   validate = require('mongoose-validator');
 
 var ThingSchema = new Schema({
-  name: String,
-  info: String,
-  url: {
-    type: String,
-    validate: validate({
-      validator: 'isURL'
-    })
+  title: String,
+  source: {
+    type : String,
+    index : { unique : true}
   },
-  ownerInfo : {
-    userId: {
-      required : true,
-      type : mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }
-  },
-  otherInfo : {
+  info: {
+    price : {
+      price : String,
+      unit : String
+    },
+
+    tags : [String],
+
     thumbs : {
       up: {
         type: Number,
@@ -31,31 +29,24 @@ var ThingSchema = new Schema({
         'default': 0
       }
     },
-    comments: [{
-      userId: mongoose.Schema.Types.ObjectId,
-      comment: {
-        text : String,
-        createdAt : Date,
-        valid : {
-          type : Boolean,
-          'default' : true
-        }
-      }
-    }],
-    tags : [
+
+    images : [
       {
-        tagId : mongoose.Schema.Types.ObjectId
+        url : {
+          type : String,
+          validate: validate({
+            validator: 'isURL'
+          })
+        }
       }
     ]
   },
+
   active: {
     type: Boolean,
     'default': true
   },
-  verified: {
-    type: Boolean,
-    'default': false
-  },
+
   createdAt : Date,
   updatedAt : Date
 });
@@ -65,8 +56,24 @@ ThingSchema.pre('save', function(next){
   if (this.isNew) {
     this.createdAt = Date.now();
   }
-
   next();
 });
 
-module.exports = mongoose.model('Thing', ThingSchema);
+ThingSchema.post('save', function(doc){
+  var self = this;
+  Item.findOneAndUpdate({ url : doc.source}, { $set : { crawled : true} }, function(err, item) {
+    if (err || !item) {
+      console.log('fail to execute thing post save ');
+    }
+    console.log('crawl ' + doc.source);
+  });
+});
+
+var ThingModel = mongoose.model('Thing', ThingSchema);
+module.exports = ThingModel;
+
+ThingSchema.path('source').validate(function (value, cb) {
+  return ThingModel.findOne( { source : value }).exec( function(err, model) {
+    return cb(!model);
+  });
+}, 'thing.source already exists, ignore');

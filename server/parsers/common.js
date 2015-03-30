@@ -45,7 +45,7 @@ CommonCrawler.prototype.fetchWithRetry = function (retryTimes, cb) {
     }
     console.log('refetch');
     retryTimes -= 1;
-    return Q.delay(3000).then(function(){
+    return Q.delay(1000).then(function(){
       return self.fetch();
     }).then(cb, rejectCb);
   }

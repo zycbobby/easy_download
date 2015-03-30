@@ -1,7 +1,7 @@
 'use strict';
 
 var util = require('util');
-var commonCrawler = require('./common');
+var commonCrawler = require('../../../parsers/common');
 var Thing = require('../thing.model');
 var Q = require('q');
 var url = require('url');

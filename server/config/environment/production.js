@@ -19,5 +19,9 @@ module.exports = {
             process.env.MONGOHQ_URL ||
             process.env.OPENSHIFT_MONGODB_DB_URL+process.env.OPENSHIFT_APP_NAME ||
             'mongodb://localhost/easydownload'
-  }
+  },
+
+
+  itemCron : '0 */5 9-23 * * *',
+  thingCron : '0 */20 9-23 * * *'
 };
