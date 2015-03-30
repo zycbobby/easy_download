@@ -37,7 +37,9 @@ var getItemJob = new CronJob({
       }).then(Q.all)
         .then(function(itemsArray){
           var results = [];
-          _.flatten(itemsArray).forEach(function(item) {
+          var flatten = _.flatten(itemsArray);
+          console.log('get ' + flatten.length + ' items');
+          flatten.forEach(function(item) {
             results.push(Item.createQ(item));
           });
           return results;
