@@ -6,6 +6,7 @@ var mongoose = require('mongoose'),
 
 var ItemSchema = new Schema({
   url: { type: String, index: { unique: true }},
+  type : Number,
   crawled : {
     type : Boolean,
     default : false

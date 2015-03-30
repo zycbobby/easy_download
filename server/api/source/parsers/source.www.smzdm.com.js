@@ -33,12 +33,14 @@ smzdmCrawler.prototype.getItems = function() {
 
     var $ = res.jquery;
     var items = [];
-
-    var articles =  $('div[articleid] h4.itemName > a');
-    for (var i = 0; i < articles.length; i++) {
+    var articleDivs = $('div[articleid]');
+    for (var i = 0; i < articleDivs.length; i++) {
       var item = new Item();
-      item.url = articles[i].attribs.href;
-      items.push(item);
+      item.url = $(articleDivs[i]).find('h4.itemName > a')[0].attribs.href;
+      item.type = Number(articleDivs[i].attribs.articleid.split('_')[0]);
+      if (item.type === 1 || item.type === 5) {
+        items.push(item);
+      }
     }
     defer.resolve(items);
   });
