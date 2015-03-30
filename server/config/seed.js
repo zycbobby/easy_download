@@ -68,10 +68,6 @@ User.findQ().then(function(data) {
 Source.removeQ().then(function(){
   Source.createQ({
     url : 'http://www.smzdm.com/p1'
-  },{
-    url : 'http://www.smzdm.com/p2'
-  },{
-    url : 'http://www.smzdm.com/p3'
   })
 }).done();
 

@@ -18,7 +18,7 @@ ItemSchema.methods = {
   getOneThing : function(){
     var urlInfo = url.parse(this.url);
 
-    var Crawler = require('./parsers/'+ urlInfo.hostname);
+    var Crawler = require('./parsers/item.'+ urlInfo.hostname);
     if (!Crawler) {
       console.log('parser for ' + urlInfo.hostname + ' is not defined');
       return [];
