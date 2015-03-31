@@ -82,14 +82,28 @@ var getThingJob = new CronJob({
     if (!isThingGetting) {
       isThingGetting = true;
       Item.findQ({ crawled : false } ).then(function(items) {
-        var results = [];
+
+        var defer = Q.defer();
+        var things = [];
         console.log('[' + sessionId + ']begin crawl ' + items.length + ' items');
-        items.forEach(function(item) {
-          results.push(item.getOneThing());
+        async.eachLimit(items, 10, function(item, cb) {
+          item.getOneThing().then(function(thing) {
+            things.push(thing);
+            cb(null);
+          }).fail(function(err) {
+            console.log(err);
+            cb(null);
+          });
+        }, function(err){
+          if (err) {
+            console.log(err);
+            throw err;
+          } else {
+            defer.resolve(things);
+          }
         });
-        return results;
-      }).then(Q.all)
-        .then(function(things){
+        return defer.promise;
+      }).then(function(things){
           var results = [];
           console.log('[' + sessionId + ']parse ' + things.length + ' things');
           things.forEach(function(thing) {
