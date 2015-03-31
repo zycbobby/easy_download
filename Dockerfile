@@ -1,9 +1,8 @@
 FROM google/nodejs
 
-
 ADD ./dist /app
 
-WORKDIR /app/dist
+WORKDIR /app
 
 RUN npm install --production
 
@@ -12,4 +11,4 @@ ENV NODE_ENV production
 
 expose 9000
 
-ENTRYPOINT ["/nodejs/bin/npm", "start"]
+CMD ["/nodejs/bin/npm", "start"]

@@ -9,5 +9,15 @@ web:
 mongo:
   image: mongo:latest
   expose: # Expose ports without publishing them to the host machine - they'll only be accessible to linked services.
-   - "27017"
+   - "16888:27017"
    - "28017"
+
+crawler:
+  image: easydownload_web:latest
+  links:
+     - mongo:db #An entry with the alias' name will be created in /etc/hosts inside containers for this service, e.g:
+  environment:
+     - MONGOLAB_URI=mongodb://db:27017/easydownload-dev
+     - ITEM_CRON=0 */5 * * * *
+     - THING_CRON=0 */10 * * * *
+  command: node server/crawler.js

@@ -22,6 +22,7 @@ module.exports = {
   },
 
 
-  itemCron : '0 */5 9-23 * * *',
-  thingCron : '0 */20 9-23 * * *'
+  itemCron : process.env.ITEM_CRON || '0 */5 9-23 * * *',
+  thingCron : process.env.THING_CRON || '0 */20 9-23 * * *',
+  timeZone : 'Asia/Shanghai'
 };

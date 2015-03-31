@@ -15,6 +15,7 @@ var Item =require('./api/item/item.model');
 var Thing =require('./api/thing/thing.model');
 var Q = require('q');
 var _ = require('lodash');
+var async = require('async');
 
 // Connect to database
 mongoose.connect(config.mongo.uri, config.mongo.options);
@@ -24,13 +25,14 @@ var isItemGetting = false;
 //
 var getItemJob = new CronJob({
   cronTime: config.itemCron,
+  timeZone : config.timeZone,
   onTick: function() {
     var sessionId = new Date();
     if (!isItemGetting) {
       isItemGetting = true;
       Source.findQ({ active : true } ).then(function(sources) {
         var results = [];
-        console.log('[' + sessionId + '] get ' + sources.length + ' sources');
+        console.log('[' + sessionId + ']get ' + sources.length + ' sources');
         sources.forEach(function(source) {
           results.push(source.getItems());
         });
@@ -39,7 +41,7 @@ var getItemJob = new CronJob({
         .then(function(itemsArray){
           var results = [];
           var flatten = _.flatten(itemsArray);
-          console.log('[' + sessionId + '] get ' + flatten.length + ' items');
+          console.log('[' + sessionId + ']get ' + flatten.length + ' items');
           flatten.forEach(function(item) {
             results.push(Item.createQ(item));
           });
@@ -74,6 +76,7 @@ var isThingGetting = false;
 //
 var getThingJob = new CronJob({
   cronTime: config.thingCron,
+  timeZone : config.timeZone,
   onTick: function() {
     var sessionId = new Date();
     if (!isThingGetting) {
@@ -115,5 +118,7 @@ var getThingJob = new CronJob({
 });
 //
 getThingJob.start();
+
+console.log('Crawler has been started, thing cron:' + config.thingCron + ' item cron : ' + config.itemCron);
 
 
