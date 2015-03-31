@@ -18,13 +18,12 @@ ItemSchema.methods = {
 
   getOneThing : function(){
     var urlInfo = url.parse(this.url);
-
     var Crawler = require('./parsers/item.'+ urlInfo.hostname);
     if (!Crawler) {
       console.log('parser for ' + urlInfo.hostname + ' is not defined');
       return [];
     }
-    var crawler = new Crawler(this.url);
+    var crawler = new Crawler(this.url, this.type);
 
     return crawler.getOneThing();
   }

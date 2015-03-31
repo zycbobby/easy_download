@@ -66,9 +66,11 @@ User.findQ().then(function(data) {
 }).done();
 
 Source.removeQ().then(function(){
-  Source.createQ({
+  return Source.createQ({
     url : 'http://www.smzdm.com/p1'
-  })
+  }, {
+      url : 'http://www.shihuo.cn'
+  });
 }).done();
 
 Item.removeQ().then(function(){
