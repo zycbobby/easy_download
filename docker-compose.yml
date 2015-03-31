@@ -8,8 +8,12 @@ web:
    - MONGOLAB_URI=mongodb://db:27017/easydownload-dev
 mongo:
   image: mongo:latest
-  expose: # Expose ports without publishing them to the host machine - they'll only be accessible to linked services.
+  ports:
    - "16888:27017"
+  volumes:
+   - /mnt/ext/data:/data/db
+  expose: # Expose ports without publishing them to the host machine - they'll only be accessible to linked services.
+   - "27017"
    - "28017"
 
 crawler:
