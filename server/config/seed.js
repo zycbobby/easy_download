@@ -74,8 +74,10 @@ Source.removeQ().then(function(){
 }).done();
 
 Item.removeQ().then(function(){
-  Item.createQ({
-    url : 'http://www.smzdm.com/p/664363'
-  });
+  // remove this because the crawler can create item now
+  // return Item.createQ({
+  //  url : 'http://www.smzdm.com/p/664363'
+  //});
 
+  return true;
 }).done();
