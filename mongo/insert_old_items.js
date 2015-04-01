@@ -1,4 +1,4 @@
-var cursor = db.oldItems.find({});
+var cursor = db.dupItems.find({});
 
 var map = {};
 
