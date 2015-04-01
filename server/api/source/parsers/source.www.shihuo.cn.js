@@ -49,7 +49,9 @@ shihuoCrawler.prototype.getItems = function() {
     var articles = $('div.select-list > ul > li[class!=top] div.t2 > a');
     for (var i = 0; i < articles.length; i++) {
       var item = new Item();
-      item.url = articles[i].attribs.href;
+      var href = articles[i].attribs.href;
+      var urlInfo = url.parse(href, true);
+      item.url = href.replace(urlInfo.hash, '');
       item.type = getShihuoType(item.url);
       if (item.type === 1 || item.type === 5) {
         items.push(item);
