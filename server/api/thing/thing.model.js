@@ -1,12 +1,17 @@
 'use strict';
 
 var mongoose = require('mongoose'),
+  mongoosastic = require('mongoosastic'),
   Schema = mongoose.Schema,
   Item = require('../item/item.model'),
   validate = require('mongoose-validator');
 
 var ThingSchema = new Schema({
-  title: String,
+  title: {
+    type : String,
+    es_indexed:true
+  },
+
   source: {
     type: String,
     index: {unique: true}
@@ -130,3 +135,9 @@ ThingSchema.path('source').validate(function (value, cb) {
     return cb(!model);
   });
 }, 'thing.source already exists, ignore');
+
+ThingSchema.plugin(mongoosastic, {
+  hosts: [
+    'localhost:9200'
+  ]
+});

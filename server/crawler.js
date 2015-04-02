@@ -51,7 +51,7 @@ var getItemJob = new CronJob({
           var count = _.filter(results, function(r) {
             return r.state !== 'rejected'
           }).length;
-          console.log('[' + sessionId + ']finish inserting ' + count + ' items');
+          console.log('[' + sessionId + ']insert ' + count + ' items');
 
           isItemGetting = false;
       }).catch(function(err) {
