@@ -17,6 +17,13 @@ RUN cp /elasticsearch-analysis-ik/config/ik /usr/share/elasticsearch/config/
 RUN cp /elasticsearch-analysis-ik/config/elasticsearch.yml /usr/share/elasticsearch/config/elasticsearch.yml
 RUN cp /elasticsearch-analysis-ik/config/logging.yml /usr/share/elasticsearch/config/logging.yml
 
+
+# install mongo elastic river https://github.com/richardwilly98/elasticsearch-river-mongodb/wiki
+
+RUN ./usr/share/elasticsearch/bin/elasticsearch -install elasticsearch/elasticsearch-mapper-attachments/2.4.1
+RUN ./usr/share/elasticsearch/bin/elasticsearch -i com.github.richardwilly98.elasticsearch/elasticsearch-river-mongodb/2.0.6
+
+
 EXPOSE 9200 9300
 
-CMD ./usr/share/elasticsearch/bin/elasticsearch
+CMD ./usr/share/elasticsearch/bin/elasticsearch elasticsearch/elasticsearch-mapper-attachments/2.4.1
