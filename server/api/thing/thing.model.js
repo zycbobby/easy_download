@@ -8,18 +8,19 @@ var mongoose = require('mongoose'),
 var ThingSchema = new Schema({
   title: String,
   source: {
-    type : String,
-    index : { unique : true}
+    type: String,
+    index: {unique: true}
   },
   info: {
-    price : {
-      price : String,
-      unit : String
+    price: {
+      price: String,
+      guessprice : Number,
+      unit: String
     },
 
-    tags : [String],
+    tags: [String],
 
-    thumbs : {
+    thumbs: {
       up: {
         type: Number,
         'default': 0
@@ -30,10 +31,10 @@ var ThingSchema = new Schema({
       }
     },
 
-    images : [
+    images: [
       {
-        url : {
-          type : String,
+        url: {
+          type: String,
           validate: validate({
             validator: 'isURL'
           })
@@ -47,11 +48,11 @@ var ThingSchema = new Schema({
     'default': true
   },
 
-  createdAt : Date,
-  updatedAt : Date
+  createdAt: Date,
+  updatedAt: Date
 });
 
-ThingSchema.pre('save', function(next){
+ThingSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   if (this.isNew) {
     this.createdAt = Date.now();
@@ -59,9 +60,61 @@ ThingSchema.pre('save', function(next){
   next();
 });
 
-ThingSchema.post('save', function(doc){
+/**
+ * extract price
+ */
+ThingSchema.pre('save', function (next) {
+  var rmb1 = {
+    pattern: /((\d+[\.\d]*)元)/g,
+    unit: '元'
+  };
+
+  var rmb2 = {
+    pattern: /(￥(\d+))/g,
+    unit: '￥'
+  };
+
+  var rmb3 = {
+    pattern: /(¥(\d+))/g,
+    unit: '¥'
+  };
+
+  var usd1 = {
+    pattern: /(\$(\d+[\.\d]*))/g,
+    unit: '$'
+  };
+
+  if (this.info.price.price.match(rmb1.pattern)) {
+    var guessPrice = this.info.price.price.match(rmb1.pattern);
+    this.info.price.guessprice = guessPrice[guessPrice.length - 1].replace(rmb1.unit, '');
+    this.info.price.unit = "rmb";
+  }
+  else if (this.info.price.price.match(rmb2.pattern)) {
+    var guessPrice = this.info.price.price.match(rmb2.pattern);
+    this.info.price.guessprice = guessPrice[guessPrice.length - 1].replace(rmb2.unit, '');
+    this.info.price.unit = "rmb";
+  }
+  else if (this.info.price.price.match(rmb3.pattern)) {
+    var guessPrice = this.info.price.price.match(rmb3.pattern);
+    this.info.price.guessprice = guessPrice[guessPrice.length - 1].replace(rmb3.unit, '');
+    this.info.price.unit = "rmb";
+  }
+  else if (this.info.price.price.match(usd1.pattern)) {
+    var guessPrice = this.info.price.price.match(usd1.pattern);
+    this.info.price.guessprice = guessPrice[guessPrice.length - 1].replace(usd1.unit, '');
+    this.info.price.unit = "usd";
+  }
+  else {
+    this.info.price.guessprice = 0;
+    this.info.price.unit = "rmb";
+  }
+  next();
+});
+
+
+ThingSchema.post('save', function (doc) {
   var self = this;
-  Item.findOneAndUpdate({ url : doc.source}, { $set : { crawled : true} }, function(err, item) {
+  Item.findOneAndUpdate({url: doc.source}, {$set: {crawled: true}}, function (err, item) {
     if (err || !item) {
       console.log('fail to execute thing post save ');
     }
@@ -73,7 +126,7 @@ var ThingModel = mongoose.model('Thing', ThingSchema);
 module.exports = ThingModel;
 
 ThingSchema.path('source').validate(function (value, cb) {
-  return ThingModel.findOne( { source : value }).exec( function(err, model) {
+  return ThingModel.findOne({source: value}).exec(function (err, model) {
     return cb(!model);
   });
 }, 'thing.source already exists, ignore');
