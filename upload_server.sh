@@ -4,3 +4,12 @@ ssh root@misscatandzuozuo.info mkdir /mnt/ext/easy_download/
 scp -r ./dist/ root@misscatandzuozuo.info:/mnt/ext/easy_download/dist
 scp ./Dockerfile root@misscatandzuozuo.info:/mnt/ext/easy_download/Dockerfile
 scp ./docker-compose.yml root@misscatandzuozuo.info:/mnt/ext/easy_download/docker-compose.yml
+
+
+# What you should do after uploading
+# docker-compose build
+# docker-compose kill
+# docker-compose rm
+# docker-compose up
+# docker-compose start mongo
+# docker-compose start crawler
