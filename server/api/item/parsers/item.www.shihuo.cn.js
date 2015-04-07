@@ -46,7 +46,7 @@ shihuoCrawler.prototype.getOneThing = function() {
         images : []
       };
 
-      article.find('div.article img[style]').each(function(idx, ele) {
+      article.find('div.article img').each(function(idx, ele) {
         thing.info.images.push( {
           url :ele.attribs.src
         });
