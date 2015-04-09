@@ -1,10 +1,10 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-  mongoosastic = require('mongoosastic'),
   Schema = mongoose.Schema,
   Item = require('../item/item.model'),
   validate = require('mongoose-validator');
+var es = require('elasticsearch');
 
 var ThingSchema = new Schema({
   title: {
@@ -83,8 +83,19 @@ ThingSchema.path('source').validate(function (value, cb) {
   });
 }, 'thing.source already exists, ignore');
 
-ThingSchema.plugin(mongoosastic, {
-  hosts: [
-    'localhost:9200'
-  ]
+ThingSchema.post('save', function(doc){
+  var client = new es.Client({
+    host : 'localhost:9200',
+    log: 'trace'
+  });
+
+  client.create({
+    index: 'mongoindex',
+    type: 'thing',
+    id: '' + doc._id,
+    body: doc
+  }, function (error, response) {
+    console.log(error);
+  });
+
 });
