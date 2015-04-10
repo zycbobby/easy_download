@@ -22,14 +22,16 @@ module.exports = {
   },
 
 
-  elasticSearch: {
-    host: process.env.ELASTIC_SEARCH_URI || 'localhost:9200',
-    index: 'mongoindex',
-    type: 'thing'
+  elasticSearch : {
+    host : 'localhost:9200',
+    index : 'mongoindex',
+    type: 'thing',
+    loglevel : 'trace'
   },
 
 
   itemCron: process.env.ITEM_CRON || '0 */5 9-23 * * *',
   thingCron: process.env.THING_CRON || '0 */20 9-23 * * *',
-  timeZone: 'Asia/Shanghai'
+  timeZone: 'Asia/Shanghai',
+  esCron : '0 0 0-8 * * *'
 };
