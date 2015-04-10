@@ -12,6 +12,11 @@ Use the Dockerfile provided [Dockerfile](./Dockerfile)
 
 ## Start es:ik
 
+## Create Index
+```bash
+curl -XPUT http://localhost:9200/mongoindex
+```
+
 ## Configure the index
 
  - Create Mapping, only the title is needed to indexed
@@ -21,7 +26,7 @@ Use the Dockerfile provided [Dockerfile](./Dockerfile)
 curl -XPOST http://localhost:9200/mongoindex/thing/_mapping -d'
 {
     "thing": {
-             "_all": {
+        "_all": {
             "indexAnalyzer": "ik",
             "searchAnalyzer": "ik",
             "term_vector": "no",
@@ -51,7 +56,7 @@ Use [npm-elasticsearch](https://www.npmjs.com/package/elasticsearch)
 ```bash
 curl -XPOST http://localhost:9200/mongoindex/thing/_search  -d'
 {
-    "query" : { "term" : { "content" : "中国" }},
+    "query" : { "term" : { "content" : "小泰克" }},
     "highlight" : {
         "pre_tags" : ["<tag1>", "<tag2>"],
         "post_tags" : ["</tag1>", "</tag2>"],
@@ -59,6 +64,6 @@ curl -XPOST http://localhost:9200/mongoindex/thing/_search  -d'
             "content" : {}
         }
     }
-}
+}'
 
 ```

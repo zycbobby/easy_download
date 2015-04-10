@@ -5,6 +5,9 @@ var mongoose = require('mongoose'),
   Item = require('../item/item.model'),
   validate = require('mongoose-validator');
 var es = require('elasticsearch');
+var esConfig = require('../../config/environment').elasticSearch;
+var ThingEs = require('./thing.es');
+
 
 var ThingSchema = new Schema({
   title: {
@@ -52,9 +55,14 @@ var ThingSchema = new Schema({
     type: Boolean,
     'default': true
   },
+  
+  indexed: {
+    type: Boolean,
+    'default': false
+  },
 
-  createdAt: Date,
-  updatedAt: Date
+  createdAt : Date,
+  updatedAt : Date
 });
 
 ThingSchema.pre('save', function (next) {
@@ -62,6 +70,7 @@ ThingSchema.pre('save', function (next) {
   if (this.isNew) {
     this.createdAt = Date.now();
   }
+  this.wasNew = this.isNew;
   next();
 });
 
@@ -137,18 +146,19 @@ ThingSchema.path('source').validate(function (value, cb) {
 }, 'thing.source already exists, ignore');
 
 ThingSchema.post('save', function(doc){
-  var client = new es.Client({
-    host : 'localhost:9200',
-    log: 'trace'
-  });
-
-  client.create({
-    index: 'mongoindex',
-    type: 'thing',
-    id: '' + doc._id,
-    body: doc
-  }, function (error, response) {
-    console.log(error);
-  });
-
+  if (doc.wasNew) {
+    var client = new es.Client({
+      host : esConfig.host,
+      log: esConfig.loglevel
+    });
+    var thingEs = new ThingEs(client);
+    thingEs.indexThing(doc).done();
+  }
 });
+
+function handleError(err) {
+  if (err) {
+    console.log(err);
+    throw err;
+  }
+}

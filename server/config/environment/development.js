@@ -5,16 +5,18 @@
 module.exports = {
   // MongoDB connection options
   mongo: {
-    uri: 'mongodb://localhost:31000/easydownload-dev'
+    uri: 'mongodb://localhost:27017/easydownload-dev'
   },
 
   itemCron : '*/5 * * * * *',
   thingCron : '*/10 * * * * *',
+  esCron : '*/20 * * * * *',
 
   elasticSearch : {
     host : 'localhost:9200',
     index : 'mongoindex',
-    type: 'thing'
+    type: 'thing',
+    loglevel : 'trace'
   },
 
   seedDB: true
