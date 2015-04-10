@@ -55,7 +55,7 @@ var ThingSchema = new Schema({
     type: Boolean,
     'default': true
   },
-  
+
   indexed: {
     type: Boolean,
     'default': false

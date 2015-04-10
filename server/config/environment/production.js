@@ -26,7 +26,28 @@ module.exports = {
     host : 'localhost:9200',
     index : 'mongoindex',
     type: 'thing',
-    loglevel : 'trace'
+    loglevel : 'trace',
+    mapping : {
+      "thing": {
+        "_all": {
+          "indexAnalyzer": "ik",
+          "searchAnalyzer": "ik",
+          "term_vector": "no",
+          "store": "false"
+        },
+        "properties": {
+          "title": {
+            "type": "string",
+            "store": "no",
+            "term_vector": "with_positions_offsets",
+            "indexAnalyzer": "ik",
+            "searchAnalyzer": "ik",
+            "include_in_all": "true",
+            "boost": 8
+          }
+        }
+      }
+    }
   },
 
 
