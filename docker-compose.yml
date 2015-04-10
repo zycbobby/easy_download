@@ -2,10 +2,13 @@ web:
   build: .
   links:
    - mongo:db #An entry with the alias' name will be created in /etc/hosts inside containers for this service, e.g:
+   - es:es
   ports:
    - "80:9000"
   environment:
    - MONGOLAB_URI=mongodb://db:27017/easydownload-dev
+   - ELASTICSEARCH_URI=es:9200
+
 mongo:
   image: mongo:latest
   ports:
@@ -25,3 +28,22 @@ crawler:
      - ITEM_CRON=0 */5 * * * *
      - THING_CRON=0 */10 * * * *
   command: node server/crawler.js
+
+essync:
+  image: easydownload_web:latest
+  link:
+    - es:es
+  environment:
+     - MONGOLAB_URI=mongodb://db:27017/easydownload-dev
+     - ELASTICSEARCH_URI=es:9200
+  command: node server/esSync.js
+
+es: # Need data volumn...
+  image: es:ik
+  volumes:
+     - /mnt/ext/esdata:/usr/share/elasticsearch/data
+  ports:
+     - "19200:9200"
+  expose: # Expose ports without publishing them to the host machine - they'll only be accessible to linked services.
+     - "9200"
+     - "9300"

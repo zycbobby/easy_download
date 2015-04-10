@@ -23,7 +23,7 @@ module.exports = {
 
 
   elasticSearch : {
-    host : 'localhost:9200',
+    host : process.env.ELASTICSEARCH_URI || 'localhost:9200',
     index : 'mongoindex',
     type: 'thing',
     loglevel : 'trace',
