@@ -69,4 +69,20 @@ curl -XPOST http://localhost:9200/mongoindex/thing/_search  -d'
 ```
 
 ## How to check the indices
+```bash
+curl -XGET http://localhost:9200/mongoindex/_analyze?analyzer=ik&text=炫彩字母！C＆A 2015早春新款男式字母印花圆领短袖T恤 天猫商城79元包邮
 
+```
+
+## How to parse the search string
+```bash
+curl -XPOST http://localhost:9200/mongoindex/_validate/query?explain -d '
+{
+  "query": {
+    "match": {
+      "title": "天猫商城"
+    }
+  }
+}
+'
+```
