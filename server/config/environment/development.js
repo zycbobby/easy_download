@@ -8,20 +8,33 @@ module.exports = {
     uri: 'mongodb://localhost:27017/easydownload-dev'
   },
 
-  itemCron : '*/5 * * * * *',
-  thingCron : '*/10 * * * * *',
-  esCron : '*/20 * * * * *',
+  itemCron: '*/5 * * * * *',
+  thingCron: '*/10 * * * * *',
+  esCron: '*/20 * * * * *',
 
-  elasticSearch : {
-    host : 'localhost:9200',
-    index : 'mongoindex',
+  elasticSearch: {
+    host: 'localhost:9200',
+    index: 'mongoindex',
     type: 'thing',
-    loglevel : 'trace',
-    mapping : {
+    loglevel: 'trace',
+
+    "ikAugAnalyzer": {
+      "analysis": {
+        "analyzer": {
+          "ik_aug": {
+            "type": "custom"
+            , "tokenizer" : "ik"
+            , "use_smart" : true
+          }
+        }
+      }
+    },
+
+    mapping: {
       "thing": {
         "_all": {
-          "indexAnalyzer": "ik",
-          "searchAnalyzer": "ik",
+          "indexAnalyzer": "ik_aug",
+          "searchAnalyzer": "ik_aug",
           "term_vector": "no",
           "store": "false"
         },
@@ -30,8 +43,8 @@ module.exports = {
             "type": "string",
             "store": "no",
             "term_vector": "with_positions_offsets",
-            "indexAnalyzer": "ik",
-            "searchAnalyzer": "ik",
+            "indexAnalyzer": "ik_aug",
+            "searchAnalyzer": "ik_aug",
             "include_in_all": "true",
             "boost": 8
           }

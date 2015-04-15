@@ -56,7 +56,7 @@ Use [npm-elasticsearch](https://www.npmjs.com/package/elasticsearch)
 ```bash
 curl -XPOST http://localhost:9200/mongoindex/thing/_search  -d'
 {
-    "query" : { "term" : { "content" : "小泰克" }},
+    "query" : { "match" : { "title" : "小泰克" }},
     "highlight" : {
         "pre_tags" : ["<tag1>", "<tag2>"],
         "post_tags" : ["</tag1>", "</tag2>"],
@@ -67,3 +67,6 @@ curl -XPOST http://localhost:9200/mongoindex/thing/_search  -d'
 }'
 
 ```
+
+## How to check the indices
+

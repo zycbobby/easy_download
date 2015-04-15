@@ -40,7 +40,11 @@ async.series([
   // create index
   function (cb) {
     client.indices.create({
-      index: esConfig.index
+      method: 'PUT',
+      index: esConfig.index,
+      body: {
+        settings :  esConfig['ikAugAnalyzer']
+      }
     }, cb);
   },
 
