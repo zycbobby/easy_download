@@ -3,7 +3,7 @@
 // Set default node environment to development
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-var mongoose = require('mongoose-q')(require('mongoose'));
+var mongoose = require('mongoose');
 var config = require('./config/environment');
 var CronJob = require('cron').CronJob;
 var Thing =require('./api/thing/thing.model');
@@ -19,6 +19,7 @@ var esConfig = require('./config/environment').elasticSearch;
 mongoose.connect(config.mongo.uri, config.mongo.options);
 
 var isEsSyncing = false;
+var limit = 100;
 //
 var syncJob = new CronJob({
   cronTime: config.esCron,
@@ -27,11 +28,10 @@ var syncJob = new CronJob({
     var sessionId = new Date();
     if (!isEsSyncing) {
       isEsSyncing = true;
-      Thing.findQ({ $or : [{indexed : false}, {indexed : null}]})
+      Thing.find({ $or : [{indexed : false}, {indexed : null}]})
+        .limit(limit)
         .then(function(unIndexedThings) {
-
           console.log('find ' + unIndexedThings.length + ' unIndexedThings');
-
           var defer = Q.defer();
 
           var thingEs = new ThingEs(new es.Client({
