@@ -35,6 +35,23 @@ ThingESClient.prototype.indexThing = function(thing) {
 };
 
 
+ThingESClient.prototype.exists = function(thingId) {
+  var defer = Q.defer();
+  var Thing = require('./thing.model');
+  this.client.exists({
+    index: esConfig.index,
+    type: esConfig.type,
+    id: '' + thingId // typeof thingId === ObjectId
+  }, function (error, exists) {
+    handleError(error);
+    defer.resolve({
+      exists : exists
+    })
+  });
+  return defer.promise;
+};
+
+
 function handleError(err) {
   if (err) {
     console.log(err);

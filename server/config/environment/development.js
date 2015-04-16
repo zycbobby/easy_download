@@ -16,7 +16,8 @@ module.exports = {
     host: 'localhost:9200',
     index: 'mongoindex',
     type: 'thing',
-    loglevel: 'trace',
+    loglevel: 'warning',
+    scanLimit : 30,
 
     "ikAugAnalyzer": {
       "analysis": {

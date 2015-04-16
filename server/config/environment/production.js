@@ -27,6 +27,7 @@ module.exports = {
     index : 'mongoindex',
     type: 'thing',
     loglevel : 'trace',
+    scanLimit : 300,
     mapping : {
       "thing": {
         "_all": {

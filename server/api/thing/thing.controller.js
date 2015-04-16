@@ -11,6 +11,7 @@
 
 var _ = require('lodash');
 var Thing = require('./thing.model');
+var Q = require('q');
 
 // Get list of things
 exports.index = function(req, res) {
@@ -63,6 +64,20 @@ exports.destroy = function(req, res) {
   });
 };
 
+exports.findIndexedThings = function(fromObjectId, limit) {
+  var defer = Q.defer();
+  console.log('searching things from ' + fromObjectId + ' limit:' + limit);
+  Thing.find({indexed: true, _id: { $gt: fromObjectId }})
+    .sort('_id')
+    .limit(limit)
+    .exec(function (err, things) {
+      if(err) {
+        defer.reject(err);
+      }
+      defer.resolve(things);
+    });
+  return defer.promise;
+};
 
 function handleError(res, err) {
   return res.send(500, err);
