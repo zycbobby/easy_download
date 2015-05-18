@@ -4,7 +4,7 @@ web:
    - mongo:db #An entry with the alias' name will be created in /etc/hosts inside containers for this service, e.g:
    - es:es
   ports:
-   - "80:9000"
+   - "9000:9000"
   environment:
    - MONGOLAB_URI=mongodb://db:27017/easydownload-dev
    - ELASTICSEARCH_URI=es:9200
