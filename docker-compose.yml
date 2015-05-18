@@ -31,7 +31,7 @@ crawler:
 
 essync:
   image: easydownload_web:latest
-  link:
+  links:
     - es:es
   environment:
      - MONGOLAB_URI=mongodb://db:27017/easydownload-dev
