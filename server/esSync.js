@@ -130,7 +130,7 @@ var syncJob = new CronJob({
 //
 syncJob.start();
 
-console.log('Elastic Search synchronizer has been started, es cron:' + config.esCron);
+console.log('Elastic Search synchronizer has been started, es cron:' + config.esCron + ' environment : ' + process.env.NODE_ENV);
 
 function handleError(err) {
   if (err) {

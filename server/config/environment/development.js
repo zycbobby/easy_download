@@ -5,7 +5,7 @@
 module.exports = {
   // MongoDB connection options
   mongo: {
-    uri: 'mongodb://localhost:27017/easydownload-dev'
+    uri: process.env.MONGOLAB_URI || 'mongodb://localhost:27017/easydownload-dev'
   },
 
   itemCron: '*/5 * * * * *',
