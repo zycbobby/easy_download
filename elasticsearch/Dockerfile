@@ -12,6 +12,7 @@ RUN git clone https://github.com/medcl/elasticsearch-analysis-ik.git
 RUN cd /elasticsearch-analysis-ik && mvn clean package
 
 RUN ./usr/share/elasticsearch/bin/plugin -i mobz/elasticsearch-head
+RUN ./usr/share/elasticsearch/bin/plugin -i elasticsearch/marvel/latest
 
 RUN cd /usr/share/elasticsearch/plugins/ && mkdir analysis-ik
 RUN cp /elasticsearch-analysis-ik/target/releases/elasticsearch-analysis-ik-1.2.9.zip /usr/share/elasticsearch/plugins/analysis-ik/elasticsearch-analysis-ik-1.2.9.zip
