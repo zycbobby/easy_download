@@ -13,7 +13,7 @@ module.exports = {
   esCron: '*/20 * * * * *',
 
   elasticSearch: {
-    host: 'localhost:9200',
+    host: 'misscatandzuozuo.info:19200',
     index: 'mongoindex',
     type: 'thing',
     loglevel: 'warning',
