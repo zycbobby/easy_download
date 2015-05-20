@@ -21,13 +21,23 @@ module.exports = {
     'mongodb://localhost/easydownload'
   },
 
-
   elasticSearch : {
     host : process.env.ELASTICSEARCH_URI || 'localhost:9200',
     index : 'mongoindex',
     type: 'thing',
     loglevel : 'trace',
     scanLimit : 300,
+    "ikAugAnalyzer": {
+      "analysis": {
+        "analyzer": {
+          "ik_aug": {
+            "type": "custom"
+            , "tokenizer" : "ik"
+            , "use_smart" : true
+          }
+        }
+      }
+    },
     mapping : {
       "thing": {
         "_all": {
