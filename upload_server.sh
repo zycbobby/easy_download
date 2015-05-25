@@ -1,10 +1,12 @@
 # Noted that you have remove the remo
 ssh root@misscatandzuozuo.info rm -rf /mnt/ext/easy_download/
 ssh root@misscatandzuozuo.info mkdir /mnt/ext/easy_download/
-ssh root@misscatandzuozuo.info mkdir /mnt/ext/easy_download/elasticsearch
+
 scp -r ./dist/ root@misscatandzuozuo.info:/mnt/ext/easy_download/dist
 scp ./Dockerfile root@misscatandzuozuo.info:/mnt/ext/easy_download/Dockerfile
 scp ./docker-compose.yml root@misscatandzuozuo.info:/mnt/ext/easy_download/docker-compose.yml
+
+# When /mnt/ext/easy_download/elasticsearch/ folder not exists, it will create folder /mnt/ext/easy_download/elasticsearch/
 scp -r ./elasticsearch/ root@misscatandzuozuo.info:/mnt/ext/easy_download/elasticsearch/
 
 

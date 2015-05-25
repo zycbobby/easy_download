@@ -29,9 +29,11 @@ MAX_LOCKED_MEMORY=unlimited
 
 # Elasticsearch configuration directory
 #CONF_DIR=/etc/elasticsearch
+CONF_DIR=/usr/share/elasticsearch/config
 
 # Elasticsearch configuration file (elasticsearch.yml)
 #CONF_FILE=/etc/elasticsearch/elasticsearch.yml
+CONF_FILE=/usr/share/elasticsearch/config/elasticsearch.yml
 
 # Additional Java OPTS
 #ES_JAVA_OPTS=
