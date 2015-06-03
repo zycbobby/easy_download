@@ -93,7 +93,7 @@ var getThingJob = new CronJob({
           }, function(){
             console.log('[' + sessionId + '] omit: ' + item.url);
             cb(null);
-          });
+          }).done();
         }, function(err){
           if (err) {
             console.log(err);
@@ -105,7 +105,7 @@ var getThingJob = new CronJob({
         return defer.promise;
       }).then(function(things){
           var results = [];
-          console.log('[' + sessionId + ']parse ' + things.length + ' things');
+          console.log('[' + sessionId + '] parse ' + things.length + ' things');
           things.forEach(function(thing) {
             results.push(Thing.createQ(thing));
           });
@@ -115,7 +115,7 @@ var getThingJob = new CronJob({
           var count = _.filter(results, function(r) {
             return r.state != 'rejected'
           }).length;
-          console.log('[' + sessionId + ']finish inserting ' + count + ' things');
+          console.log('[' + sessionId + '] finish inserting ' + count + ' things');
           isThingGetting = false;
         }).catch(function(err) {
           console.log(err);
