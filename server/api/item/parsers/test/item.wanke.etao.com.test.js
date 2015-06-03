@@ -6,7 +6,7 @@
  */
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-var etaoThingCrawler = require('./item.wanke.etao.com');
+var etaoThingCrawler = require('./../item.wanke.etao.com.js');
 
 var crawler = new etaoThingCrawler('http://wanke.etao.com/detail/1431547.html?wanke_src=feed', 0);
 

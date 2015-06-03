@@ -52,7 +52,6 @@ etaoCrawler.prototype.getOneThing = function() {
           url :ele.attribs.src
         });
       });
-
       defer.resolve(thing);
     } else {
       defer.reject();

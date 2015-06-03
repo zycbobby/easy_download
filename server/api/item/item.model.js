@@ -2,7 +2,8 @@
 
 var mongoose = require('mongoose'),
     url = require('url'),
-    Schema = mongoose.Schema;
+    Schema = mongoose.Schema,
+    Q = require('q');
 
 var ItemSchema = new Schema({
   url: { type: String, index: { unique: true }},
@@ -18,14 +19,23 @@ ItemSchema.methods = {
 
   getOneThing : function(){
     var urlInfo = url.parse(this.url);
-    var Crawler = require('./parsers/item.'+ urlInfo.hostname);
-    if (!Crawler) {
-      console.log('parser for ' + urlInfo.hostname + ' is not defined');
-      return [];
-    }
-    var crawler = new Crawler(this.url, this.type);
 
-    return crawler.getOneThing();
+    var parserModule = './parsers/item.' + urlInfo.hostname;
+    try  {
+      var Crawler = require(parserModule);
+      if (!Crawler) {
+        console.log('parser for ' + urlInfo.hostname + ' is not defined');
+        return [];
+      }
+      var crawler = new Crawler(this.url, this.type);
+
+      return crawler.getOneThing();
+
+    } catch(e) {
+      console.log(parserModule + ' not exists, omit ' + this.url);
+      return Q.reject(parserModule + ' not exists, omit ' + this.url);
+    }
+
   }
 };
 
