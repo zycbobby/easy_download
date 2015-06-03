@@ -18,17 +18,11 @@ function etaoCrawler(url) {
 
 util.inherits(etaoCrawler, commonCrawler);
 
-function getShihuoType(url){
-  if (url.indexOf('haitao') > -1) {
-    return  5;
-  }
-
-  if (url.indexOf('youhui') > -1) {
+function getEtaoType(url){
+  if (url.indexOf('wanke.etao.com') > -1) {
     return  1;
   }
-
   return 6;
-
 }
 
 etaoCrawler.prototype.getItems = function() {
@@ -52,9 +46,10 @@ etaoCrawler.prototype.getItems = function() {
       var href = articles[i].attribs.href;
       var urlInfo = url.parse(href, true);
       item.url = href.replace(urlInfo.hash, '');
-      item.type = 1;
-      items.push(item);
-
+      item.type = getEtaoType(item.url);
+      if (item.type === 1) {
+        items.push(item);
+      }
     }
     defer.resolve(items);
   });
