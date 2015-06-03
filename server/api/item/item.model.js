@@ -14,10 +14,6 @@ var ItemSchema = new Schema({
   }
 });
 
-
-var ItemModel = mongoose.model('Item', ItemSchema);
-module.exports = ItemModel;
-
 ItemSchema.path('url').validate(function (value, cb) {
   return ItemModel.findOne( { url : value }).exec( function(err, model) {
     return cb(!model);
@@ -40,21 +36,15 @@ ItemSchema.methods = {
       return crawler.getOneThing();
     } catch(e) {
       console.log(parserModule + ' not exists, omit ' + this.url);
-      //
-      //var defer = Q.defer();
-      //Item.findOneAndUpdate({url: this.url}, {$set: {crawled: true}}, function (err, item) {
-      //  if (err || !item) {
-      //    console.log('fail to set item crawled true' + item);
-      //  }
-      //
-      //  defer.reject()
-      //});
-      //
-      //return defer.promise;
-
       return Q.reject(parserModule + ' not exists, omit ' + this.url);
     }
   }
 };
+
+
+
+var ItemModel = mongoose.model('Item', ItemSchema);
+module.exports = ItemModel;
+
 
 
