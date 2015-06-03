@@ -1,5 +1,5 @@
 # Heap Size (defaults to 256m min, 1g max)
-ES_HEAP_SIZE=384m # 这个会使得Xmx 和Xms同时为384m
+ES_HEAP_SIZE=256m # 这个会使得Xmx 和Xms同时为384m
 
 # Heap new generation
 #ES_HEAP_NEWSIZE=
@@ -23,9 +23,10 @@ MAX_LOCKED_MEMORY=unlimited
 
 # Elasticsearch data directory
 #DATA_DIR=/var/lib/elasticsearch
+DATA_DIR=/usr/share/elasticsearch/data
 
 # Elasticsearch work directory
-#WORK_DIR=/tmp/elasticsearch
+WORK_DIR=/usr/share/elasticsearch/
 
 # Elasticsearch configuration directory
 #CONF_DIR=/etc/elasticsearch
