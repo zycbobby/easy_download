@@ -41,7 +41,7 @@ var getItemJob = new CronJob({
         .then(function(itemsArray){
           var results = [];
           var flatten = _.flatten(itemsArray);
-          console.log('[' + sessionId + ']get ' + flatten.length + ' items');
+          console.log('[' + sessionId + '] get ' + flatten.length + ' items');
           flatten.forEach(function(item) {
             results.push(Item.createQ(item));
           });
@@ -51,7 +51,7 @@ var getItemJob = new CronJob({
           var count = _.filter(results, function(r) {
             return r.state !== 'rejected'
           }).length;
-          console.log('[' + sessionId + ']insert ' + count + ' items');
+          console.log('[' + sessionId + '] insert ' + count + ' items');
 
           isItemGetting = false;
       }).catch(function(err) {
@@ -85,13 +85,13 @@ var getThingJob = new CronJob({
 
         var defer = Q.defer();
         var things = [];
-        console.log('[' + sessionId + ']begin crawl ' + items.length + ' items');
+        console.log('[' + sessionId + '] begin crawl ' + items.length + ' items');
         async.eachLimit(items, 10, function(item, cb) {
           item.getOneThing().then(function(thing) {
             things.push(thing);
             cb(null);
-          }).fail(function(err) {
-            console.log(err);
+          }, function(){
+            console.log('[' + sessionId + '] omit: ' + item.url);
             cb(null);
           });
         }, function(err){
