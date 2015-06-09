@@ -10,12 +10,18 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 var mongoose = require('mongoose-q')(require('mongoose'));
 var config = require('./config/environment');
 var CronJob = require('cron').CronJob;
-var Source =require('./api/source/source.model');
-var Item =require('./api/item/item.model');
-var Thing =require('./api/thing/thing.model');
+var Source = require('./api/source/source.model');
+var Item = require('./api/item/item.model');
+var Thing = require('./api/thing/thing.model');
 var Q = require('q');
 var _ = require('lodash');
 var async = require('async');
+
+var log4js = require('log4js');
+log4js.configure(config.log4js);
+
+var logger = log4js.getLogger('normal');
+logger.setLevel('INFO');
 
 // Connect to database
 mongoose.connect(config.mongo.uri, config.mongo.options);
@@ -25,46 +31,45 @@ var isItemGetting = false;
 //
 var getItemJob = new CronJob({
   cronTime: config.itemCron,
-  timeZone : config.timeZone,
-  onTick: function() {
+  timeZone: config.timeZone,
+  onTick: function () {
     var sessionId = new Date();
     if (!isItemGetting) {
       isItemGetting = true;
-      Source.findQ({ active : true } ).then(function(sources) {
+      Source.findQ({active: true}).then(function (sources) {
         var results = [];
-        console.log('[' + sessionId + ']get ' + sources.length + ' sources');
-        sources.forEach(function(source) {
+        logger.info('get ' + sources.length + ' sources');
+        sources.forEach(function (source) {
           results.push(source.getItems());
         });
         return results;
       }).then(Q.all)
-        .then(function(itemsArray){
+        .then(function (itemsArray) {
           var results = [];
           var flatten = _.flatten(itemsArray);
-          console.log('[' + sessionId + '] get ' + flatten.length + ' items');
-          flatten.forEach(function(item) {
+          logger.info('[' + sessionId + '] get ' + flatten.length + ' items');
+          flatten.forEach(function (item) {
             results.push(Item.createQ(item));
           });
           return results;
-      }).then(Q.allSettled)
-        .then(function(results){
-          var count = _.filter(results, function(r) {
+        }).then(Q.allSettled)
+        .then(function (results) {
+          var count = _.filter(results, function (r) {
             return r.state !== 'rejected'
           }).length;
-          console.log('[' + sessionId + '] insert ' + count + ' items');
-
+          logger.info('[' + sessionId + '] insert ' + count + ' items');
           isItemGetting = false;
-      }).catch(function(err) {
-        console.log(err);
-        isItemGetting = false;
-      }).done();
+        }).catch(function (err) {
+          logger.error(err);
+          isItemGetting = false;
+        }).done();
     } else {
-      console.log('[' + sessionId + ']item is now getting, ignore this one : ' + new Date());
+      logger.info('[' + sessionId + ']item is now getting, ignore this one : ' + new Date());
     }
 
   },
-  onComplete : function(){
-    console.log('item job has completed');
+  onComplete: function () {
+    logger.info('item job has completed');
   },
   start: false
 });
@@ -75,63 +80,63 @@ var isThingGetting = false;
 //
 var getThingJob = new CronJob({
   cronTime: config.thingCron,
-  timeZone : config.timeZone,
-  onTick: function() {
+  timeZone: config.timeZone,
+  onTick: function () {
     var sessionId = new Date();
     if (!isThingGetting) {
       isThingGetting = true;
-      Item.findQ({ crawled : false } ).then(function(items) {
+      Item.findQ({crawled: false}).then(function (items) {
 
         var defer = Q.defer();
         var things = [];
-        console.log('[' + sessionId + '] begin crawl ' + items.length + ' items');
-        async.eachSeries(items, function(item, cb) {
-          item.getOneThing().then(function(thing) {
+        logger.info('[' + sessionId + '] begin crawl ' + items.length + ' items');
+        async.eachSeries(items, function (item, cb) {
+          item.getOneThing().then(function (thing) {
             things.push(thing);
             cb(null);
-          }, function(){
-            console.log('[' + sessionId + '] omit: ' + item.url);
+          }, function () {
+            logger.info('[' + sessionId + '] omit: ' + item.url);
             cb(null);
           });
-        }, function(err){
+        }, function (err) {
           if (err) {
-            console.log(err);
+            logger.error(err);
             throw err;
           } else {
             defer.resolve(things);
           }
         });
         return defer.promise;
-      }).then(function(things){
-          var results = [];
-          console.log('[' + sessionId + '] parse ' + things.length + ' things');
-          things.forEach(function(thing) {
-            results.push(Thing.createQ(thing));
-          });
-          return results;
-        }).then(Q.allSettled)
-        .then(function(results){
-          var count = _.filter(results, function(r) {
+      }).then(function (things) {
+        var results = [];
+        logger.info('[' + sessionId + '] parse ' + things.length + ' things');
+        things.forEach(function (thing) {
+          results.push(Thing.createQ(thing));
+        });
+        return results;
+      }).then(Q.allSettled)
+        .then(function (results) {
+          var count = _.filter(results, function (r) {
             return r.state != 'rejected'
           }).length;
-          console.log('[' + sessionId + '] finish inserting ' + count + ' things');
+          logger.info('[' + sessionId + '] finish inserting ' + count + ' things');
           isThingGetting = false;
-        }).catch(function(err) {
-          console.log(err.stack);
+        }).catch(function (err) {
+          logger.error(err.stack);
           isThingGetting = false;
         }).done();
     } else {
-      console.log('[' + sessionId + '] thing is now getting, ignore this one : ' + new Date());
+      logger.info('[' + sessionId + '] thing is now getting, ignore this one : ' + new Date());
     }
   },
-  onComplete : function(){
-    console.log('thing job has completed');
+  onComplete: function () {
+    logger.info('thing job has completed');
   },
   start: false
 });
 //
 getThingJob.start();
 
-console.log('Crawler has been started, thing cron:' + config.thingCron + ' item cron : ' + config.itemCron);
+logger.info('Crawler has been started, thing cron:' + config.thingCron + ' item cron : ' + config.itemCron);
 
 

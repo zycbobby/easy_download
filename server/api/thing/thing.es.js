@@ -2,7 +2,12 @@
 
 
 var Q = require('q');
-var esConfig = require('../../config/environment').elasticSearch;
+var config = require('../../config/environment');
+var esConfig = config.elasticSearch;
+var log4js = require('log4js');
+log4js.configure(config.log4js);
+var logger = log4js.getLogger('normal');
+logger.setLevel('INFO');
 
 function ThingESClient(esclient) {
   this.client = esclient;
@@ -18,11 +23,11 @@ ThingESClient.prototype.indexThing = function(thing) {
     body: thing
   }, function (error, response) {
     handleError(error);
-    console.log(response);
+    logger.info(response);
 
     Thing.findOneAndUpdate({ _id : thing._id}, { indexed : true}, function(err, res) {
       handleError(err);
-      console.log('[ThingESClient]' + thing._id + ' was indexed');
+      logger.info('[ThingESClient]' + thing._id + ' was indexed');
       defer.resolve({
         status : 'ok',
         mongoResult : res,
@@ -54,7 +59,7 @@ ThingESClient.prototype.exists = function(thingId) {
 
 function handleError(err) {
   if (err) {
-    console.log(err);
+    logger.error(err);
     throw err;
   }
 }
