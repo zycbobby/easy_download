@@ -8,6 +8,7 @@
 var util = require('util');
 var commonCrawler = require('../../../parsers/common');
 var Thing = require('../../thing/thing.model');
+var Item = require('../item.model');
 var Q = require('q');
 var url = require('url');
 
@@ -54,7 +55,13 @@ etaoCrawler.prototype.getOneThing = function() {
       });
       defer.resolve(thing);
     } else {
-      defer.reject();
+
+      Item.findOneAndUpdate({ url : self.url}, {$set: {crawled: true}}).exec(function (err, item) {
+        if (err || !item) {
+          console.log('fail to set ' + self.url + ' crawled ');
+        }
+        defer.reject();
+      });
     }
 
   });

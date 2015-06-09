@@ -71,7 +71,6 @@ var getItemJob = new CronJob({
 
 getItemJob.start();
 
-
 var isThingGetting = false;
 //
 var getThingJob = new CronJob({
@@ -86,14 +85,14 @@ var getThingJob = new CronJob({
         var defer = Q.defer();
         var things = [];
         console.log('[' + sessionId + '] begin crawl ' + items.length + ' items');
-        async.eachLimit(items, 10, function(item, cb) {
+        async.eachSeries(items, function(item, cb) {
           item.getOneThing().then(function(thing) {
             things.push(thing);
             cb(null);
           }, function(){
             console.log('[' + sessionId + '] omit: ' + item.url);
             cb(null);
-          }).done();
+          });
         }, function(err){
           if (err) {
             console.log(err);
@@ -118,11 +117,11 @@ var getThingJob = new CronJob({
           console.log('[' + sessionId + '] finish inserting ' + count + ' things');
           isThingGetting = false;
         }).catch(function(err) {
-          console.log(err);
+          console.log(err.stack);
           isThingGetting = false;
         }).done();
     } else {
-      console.log('[' + sessionId + ']thing is now getting, ignore this one : ' + new Date());
+      console.log('[' + sessionId + '] thing is now getting, ignore this one : ' + new Date());
     }
   },
   onComplete : function(){
