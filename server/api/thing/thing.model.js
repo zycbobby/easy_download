@@ -5,9 +5,14 @@ var mongoose = require('mongoose'),
   Item = require('../item/item.model'),
   validate = require('mongoose-validator');
 var es = require('elasticsearch');
-var esConfig = require('../../config/environment').elasticSearch;
+var config = require('../../config/environment');
+var esConfig = config.elasticSearch;
 var ThingEs = require('./thing.es');
 
+var log4js = require('log4js');
+log4js.configure(config.log4js);
+var logger = log4js.getLogger('normal');
+logger.setLevel('INFO');
 
 var ThingSchema = new Schema({
   title: {
@@ -130,9 +135,9 @@ ThingSchema.post('save', function (doc) {
   var self = this;
   Item.findOneAndUpdate({url: doc.source}, {$set: {crawled: true}}, function (err, item) {
     if (err || !item) {
-      console.log('fail to execute thing post save ');
+      logger.error('fail to execute thing post save ');
     }
-    console.log('crawl ' + doc.source);
+    logger.info('crawl ' + doc.source);
   });
 });
 
@@ -158,7 +163,7 @@ ThingSchema.post('save', function(doc){
 
 function handleError(err) {
   if (err) {
-    console.log(err);
+    logger.error(err);
     throw err;
   }
 };

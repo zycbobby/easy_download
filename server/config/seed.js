@@ -70,6 +70,8 @@ Source.removeQ().then(function(){
     url : 'http://www.smzdm.com/p1'
   }, {
       url : 'http://www.shihuo.cn'
+  }, {
+    url : 'http://www.etao.com'
   });
 }).done();
 

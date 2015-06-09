@@ -45,6 +45,19 @@ var all = {
     clientID:     process.env.GOOGLE_ID || 'id',
     clientSecret: process.env.GOOGLE_SECRET || 'secret',
     callbackURL:  (process.env.DOMAIN || '') + '/auth/google/callback'
+  },
+
+  log4js: {
+    appenders: [
+      {type: 'console'},
+      {
+        type: 'file',
+        filename: 'logs/crawler.log',
+        maxLogSize: 1024 * 1000,
+        backups: 10,
+        category: 'normal'
+      }
+    ]
   }
 };
 
