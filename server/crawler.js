@@ -26,7 +26,7 @@ logger.setLevel('INFO');
 // Connect to database
 mongoose.connect(config.mongo.uri, config.mongo.options);
 
-var isItemGetting = true;
+var isItemGetting = false;
 
 //
 var getItemJob = new CronJob({
