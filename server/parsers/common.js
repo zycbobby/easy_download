@@ -9,20 +9,24 @@ function CommonCrawler(url) {
   this.url = url;
 }
 
-CommonCrawler.prototype.fetch = function () {
-  var defer = Q.defer();
+CommonCrawler.prototype.fetchWithRetry = function (retryTimes, cb) {
   var self = this;
   crawler.queue({
     uri : self.url,
     jQuery: true,
     forceUTF8 : true,
+    timeout : 5000,
+    retries : retryTimes,
+    retryTimeout : 3000,
     // cache : true,
     userAgent : 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.101 Safari/537.36',
     callback : function(error, result, $){
       if (error) {
-        defer.reject(error);
+        cb({
+          error: error
+        })
       } else {
-        defer.resolve({
+        cb({
           error : undefined,
           result : result,
           jquery : $
@@ -30,26 +34,6 @@ CommonCrawler.prototype.fetch = function () {
       }
     }
   });
-  return defer.promise;
-};
-
-CommonCrawler.prototype.fetchWithRetry = function (retryTimes, cb) {
-  var self = this;
-
-  function rejectCb() {
-    if (0 === retryTimes) {
-      cb({
-        error: 'retry too many times'
-      });
-      return;
-    }
-    console.log('refetch');
-    retryTimes -= 1;
-    return Q.delay(1000).then(function(){
-      return self.fetch();
-    }).then(cb, rejectCb);
-  }
-  self.fetch().then(cb, rejectCb);
 };
 
 module.exports = CommonCrawler;

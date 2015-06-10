@@ -53,7 +53,7 @@ var all = {
       {
         type: 'file',
         filename: 'logs/crawler.log',
-        maxLogSize: 1024 * 1000,
+        maxLogSize: 1024 * 1000 * 10,
         backups: 10,
         category: 'normal'
       }
