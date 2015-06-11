@@ -33,7 +33,7 @@ etaoCrawler.prototype.getItems = function() {
 
     if (res.error) {
       defer.reject({
-        error : error
+        error : res.error
       });
       return;
     }

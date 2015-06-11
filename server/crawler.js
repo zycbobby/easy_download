@@ -7,7 +7,7 @@
 // Set default node environment to development
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-var mongoose = require('mongoose-q')(require('mongoose'));
+var mongoose = require('mongoose');
 var config = require('./config/environment');
 var CronJob = require('cron').CronJob;
 var Source = require('./api/source/source.model');
@@ -36,29 +36,45 @@ var getItemJob = new CronJob({
     var sessionId = new Date();
     if (!isItemGetting) {
       isItemGetting = true;
-      Source.findQ({active: true}).then(function (sources) {
+      Q().then(function(){
+        var defer = Q.defer();
         var results = [];
-        logger.info('get ' + sources.length + ' sources');
-        sources.forEach(function (source) {
-          results.push(source.getItems());
+        Source.find({active: true}).exec(function (err, sources) {
+          logger.info('get ' + sources.length + ' sources');
+          async.each(sources, function(source, cb) {
+            source.getItems().then(function(items){
+              results.push(items);
+              cb(null);
+            }, function(err) {
+              cb(null);
+            });
+          }, function(err) {
+            if (err) throw err;
+            defer.resolve(results);
+          })
         });
-        return results;
-      }).then(Q.all)
-        .then(function (itemsArray) {
-          var results = [];
+        return defer.promise;
+      }).then(function (itemsArray) {
           var flatten = _.flatten(itemsArray);
           logger.info('[' + sessionId + '] get ' + flatten.length + ' items');
-          flatten.forEach(function (item) {
-            results.push(Item.createQ(item));
+
+          var defer = Q.defer();
+          async.map(flatten, function(item, cb) {
+            Item.findOne({ url : item.url }).exec(function(err, doc) {
+              if (err) throw err;
+              if (!doc) {
+                Item.create(item, cb);
+              } else {
+                cb();
+              }
+            });
+          }, function(err, results) {
+            if (err) throw err;
+            logger.info('[' + sessionId + '] insert ' + results.filter(function(r) { return !!r }).length + ' items');
+            isItemGetting = false;
+            defer.resolve(); // how to resolve results
           });
-          return results;
-        }).then(Q.allSettled)
-        .then(function (results) {
-          var count = _.filter(results, function (r) {
-            return r.state !== 'rejected'
-          }).length;
-          logger.info('[' + sessionId + '] insert ' + count + ' items');
-          isItemGetting = false;
+          return defer.promise;
         }).catch(function (err) {
           logger.error(err);
           isItemGetting = false;
@@ -85,43 +101,52 @@ var getThingJob = new CronJob({
     var sessionId = new Date();
     if (!isThingGetting) {
       isThingGetting = true;
-      Item.findQ({crawled: false}).then(function (items) {
-
+      Q().then(function(){
         var defer = Q.defer();
-        var things = [];
-        logger.info('[' + sessionId + '] begin crawl ' + items.length + ' items');
-        async.eachSeries(items, function (item, cb) {
-          item.getOneThing().then(function (thing) {
-            things.push(thing);
-            cb(null);
-          }, function () {
-            logger.info('[' + sessionId + '] omit: ' + item.url);
-            cb(null);
+        var results = [];
+        Item.find({crawled: false}).exec(function (err, items) {
+          if (err) throw err;
+          logger.info('[' + sessionId + '] begin crawl ' + items.length + ' items');
+          async.eachLimit(items, 5, function (item, cb) {
+            item.getOneThing().then(function (thing) {
+              results.push(thing);
+              cb(null);
+            }, function () {
+              logger.info('[' + sessionId + '] omit: ' + item.url);
+              cb(null);
+            });
+          }, function (err) {
+            if (err) {
+              logger.error(err);
+              throw err;
+            } else {
+              defer.resolve(results);
+            }
           });
-        }, function (err) {
-          if (err) {
-            logger.error(err);
-            throw err;
-          } else {
-            defer.resolve(things);
-          }
         });
         return defer.promise;
       }).then(function (things) {
-        var results = [];
+
         logger.info('[' + sessionId + '] parse ' + things.length + ' things');
-        things.forEach(function (thing) {
-          results.push(Thing.createQ(thing));
-        });
-        return results;
-      }).then(Q.allSettled)
-        .then(function (results) {
-          var count = _.filter(results, function (r) {
-            return r.state != 'rejected'
-          }).length;
-          logger.info('[' + sessionId + '] finish inserting ' + count + ' things');
+
+        var defer = Q.defer();
+        async.map(things, function(thing, cb) {
+          Thing.findOne({ url : thing.source }).exec(function(err, doc) {
+            if (err) throw err;
+            if (!doc) {
+              Thing.create(thing, cb);
+            } else {
+              cb();
+            }
+          });
+        }, function(err, results) {
+          if (err) throw err;
+          logger.info('[' + sessionId + '] insert ' + results.filter(function(r) { return !!r }).length + ' things');
           isThingGetting = false;
-        }).catch(function (err) {
+          defer.resolve(); // how to resolve results
+        });
+        return defer.promise;
+      }).catch(function (err) {
           logger.error(err.stack);
           isThingGetting = false;
         }).done();
