@@ -36,4 +36,9 @@ CommonCrawler.prototype.fetchWithRetry = function (retryTimes, cb) {
   });
 };
 
+var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/g;
+CommonCrawler.prototype.isValidaUrl = function(url) {
+  return regexp.test(url);
+};
+
 module.exports = CommonCrawler;

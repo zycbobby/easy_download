@@ -9,10 +9,10 @@ var config = require('../../config/environment');
 var esConfig = config.elasticSearch;
 var ThingEs = require('./thing.es');
 
-var log4js = require('log4js');
-log4js.configure(config.log4js);
-var logger = log4js.getLogger('normal');
-logger.setLevel('INFO');
+  var log4js = require('log4js');
+  log4js.configure(config.log4js);
+  var logger = log4js.getLogger('normal');
+  logger.setLevel('INFO');
 
 var ThingSchema = new Schema({
   title: {

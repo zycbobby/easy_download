@@ -47,9 +47,12 @@ shihuoCrawler.prototype.getOneThing = function() {
       };
 
       article.find('div.article img').each(function(idx, ele) {
-        thing.info.images.push( {
-          url :ele.attribs.src
-        });
+        var url2 = ele.attribs.src;
+        if (self.isValidaUrl(url2)) {
+          thing.info.images.push( {
+                    url : ele.attribs.src
+                  });
+        }
       });
 
       defer.resolve(thing);
