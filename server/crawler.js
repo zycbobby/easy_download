@@ -92,7 +92,7 @@ var getItemJob = new CronJob({
 
 getItemJob.start();
 
-var isThingGetting = false;
+var isThingGetting = true;
 //
 var getThingJob = new CronJob({
   cronTime: config.thingCron,
