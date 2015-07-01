@@ -7,10 +7,8 @@ var CronJob = require('cron').CronJob;
 var Source = require('./api/source/source.model');
 var Item = require('./api/item/item.model');
 var Thing = require('./api/thing/thing.model');
-var Q = require('q');
 var _ = require('lodash');
-var async = require('async');
-var co =  require('co');
+var co = require('co');
 
 var log4js = require('log4js');
 log4js.configure(config.log4js);
@@ -49,74 +47,51 @@ function onTick() {
   var sessionId = new Date();
   if (!isItemGetting) {
     isItemGetting = true;
-    var sourceIter = findActiveSource();
-    console.log(sourceIter.next().value);
-    isItemGetting = false;
-  } else {
-    logger.info('[' + sessionId + ']item is now getting, ignore this one : ' + new Date());
-  }
-}
+    co(function* () {
+      var sources = yield Promise.resolve(findActiveSource());
+      var itemsBelongToSource = yield Promise.all(sources.map(src => {
+        return src.getItems();
+      }));
 
-
-co(function* (){
-  return yield Promise.resolve(findActiveSource());
-}).then(function(sources) {
-  console.log(sources);
-});
-
-
-function onTick1() {
-  var sessionId = new Date();
-  if (!isItemGetting) {
-    isItemGetting = true;
-    Q().then(function () {
-      var defer = Q.defer();
-      var results = [];
-      Source.find({active: true}).exec(function (err, sources) {
-        logger.info('get ' + sources.length + ' sources');
-        async.each(sources, function (source, cb) {
-          source.getItems().then(function (items) {
-            results.push(items);
-            cb(null);
-          }, function (err) {
-            cb(null);
+      var insertedItems = yield Promise.all(_.flatten(itemsBelongToSource).map(item => {
+        return new Promise(function (fulfil, reject) {
+          Item.findOne({url: item.url}).exec(function (err, doc) {
+            if (err) reject(err);
+            if (!doc) {
+              Item.create(item, function (err, doc) {
+                if (err) reject(err);
+                fulfil( {
+                  value : 1,
+                  msg : item.url
+                });
+              });
+            } else {
+              fulfil( {
+                value : 0,
+                msg : item.url
+              });
+            }
           });
-        }, function (err) {
-          if (err) throw err;
-          defer.resolve(results);
-        })
-      });
-      return defer.promise;
-    }).then(function (itemsArray) {
-      var flatten = _.flatten(itemsArray);
-      logger.info('[' + sessionId + '] get ' + flatten.length + ' items');
-
-      var defer = Q.defer();
-      async.map(flatten, function (item, cb) {
-        Item.findOne({url: item.url}).exec(function (err, doc) {
-          if (err) throw err;
-          if (!doc) {
-            Item.create(item, cb);
-          } else {
-            cb();
-          }
         });
-      }, function (err, results) {
-        if (err) throw err;
-        logger.info('[' + sessionId + '] insert ' + results.filter(function (r) {
-            return !!r
-          }).length + ' items');
-        isItemGetting = false;
-        defer.resolve(); // how to resolve results
-      });
-      return defer.promise;
-    }).catch(function (err) {
-      logger.error(err);
+      }));
+      logger.info('finished, inserted ' + insertedItems.filter(item => { return item.value === 1; }).length + ' items');
+
+    }).then(function() {
       isItemGetting = false;
-    }).done();
+    }).catch(function (err) {
+      onerror(err);
+      isItemGetting = false;
+    });
   } else {
-    logger.info('[' + sessionId + ']item is now getting, ignore this one : ' + new Date());
+    logger.info('[' + sessionId + '] item is now getting, ignore this one');
   }
 }
 
-// getItemJob.start();
+function onerror(err) {
+  // log any uncaught errors
+  // co will not throw any errors you do not handle!!!
+  // HANDLE ALL YOUR ERRORS!!!
+  console.error(err.stack);
+}
+
+getItemJob.start();
