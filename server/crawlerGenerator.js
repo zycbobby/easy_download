@@ -42,6 +42,28 @@ function findActiveSource() {
   });
 }
 
+function insertItem(item) {
+  return new Promise(function (fulfil, reject) {
+    Item.findOne({url: item.url}).exec(function (err, doc) {
+      if (err) reject(err);
+      if (!doc) {
+        Item.create(item, function (err, doc) {
+          if (err) reject(err);
+          fulfil( {
+            value : 1,
+            msg : item.url
+          });
+        });
+      } else {
+        fulfil( {
+          value : 0,
+          msg : item.url
+        });
+      }
+    });
+  });
+}
+
 
 function onTick() {
   var sessionId = new Date();
@@ -52,30 +74,10 @@ function onTick() {
       var itemsBelongToSource = yield Promise.all(sources.map(src => {
         return src.getItems();
       }));
-
       var insertedItems = yield Promise.all(_.flatten(itemsBelongToSource).map(item => {
-        return new Promise(function (fulfil, reject) {
-          Item.findOne({url: item.url}).exec(function (err, doc) {
-            if (err) reject(err);
-            if (!doc) {
-              Item.create(item, function (err, doc) {
-                if (err) reject(err);
-                fulfil( {
-                  value : 1,
-                  msg : item.url
-                });
-              });
-            } else {
-              fulfil( {
-                value : 0,
-                msg : item.url
-              });
-            }
-          });
-        });
+        return insertItem(item);
       }));
       logger.info('finished, inserted ' + insertedItems.filter(item => { return item.value === 1; }).length + ' items');
-
     }).then(function() {
       isItemGetting = false;
     }).catch(function (err) {
