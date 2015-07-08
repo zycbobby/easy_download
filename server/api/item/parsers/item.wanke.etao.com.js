@@ -60,7 +60,7 @@ etaoCrawler.prototype.getOneThing = function() {
         if (err || !item) {
           console.log('fail to set ' + self.url + ' crawled ');
         }
-        defer.reject();
+        defer.resolve(null);
       });
     }
 
