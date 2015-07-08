@@ -130,7 +130,7 @@ var getThingJob = new CronJob({
         logger.info('[' + sessionId + '] parse ' + things.length + ' things');
 
         var defer = Q.defer();
-        async.mapSeries(things, function(thing, cb) {
+        async.mapSeries(things.filter(function(thing){return !!thing;}), function(thing, cb) {
           Thing.findOne({ url : thing.source }).exec(function(err, doc) {
             if (err) {
               throw err;
