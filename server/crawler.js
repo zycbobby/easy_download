@@ -60,8 +60,8 @@ function onItemTick() {
         return co(insertItem(item));
       }));
       logger.info('finished item crawling, inserted ' + insertedItems.filter(item => {
-          return item.isFulfilled();
-        }).length + ' items');
+        return item.isFulfilled();
+      }).length + ' items');
     }).then(function () {
       isItemGetting = false;
     }).catch(function (err) {
@@ -116,8 +116,8 @@ function onThingTick() {
         return co(insertThing(pi.value()));
       }));
       logger.info("finished item crawling, inserted " + savedThings.filter(t => {
-          return t.isFulfilled();
-        }).length + " things");
+        return t.isFulfilled();
+      }).length + " things");
     }).then(function () {
       isThingGetting = false;
     }).catch(function (err) {
