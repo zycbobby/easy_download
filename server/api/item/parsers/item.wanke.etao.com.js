@@ -59,8 +59,11 @@ etaoCrawler.prototype.getOneThing = function() {
       Item.findOneAndUpdate({ url : self.url}, {$set: {crawled: true}}).exec(function (err, item) {
         if (err || !item) {
           console.log('fail to set ' + self.url + ' crawled ');
+          throw err;
+        } else {
+          defer.reject('item was not found on ' + self.url);
         }
-        defer.resolve(null);
+
       });
     }
 

@@ -1,12 +1,13 @@
 // Set default node environment to development
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-var mongoose = require('mongoose');
 var config = require('./config/environment');
 var CronJob = require('cron').CronJob;
-var Source = require('./api/source/source.model');
-var Item = require('./api/item/item.model');
-var Thing = require('./api/thing/thing.model');
+var Promise = require('bluebird');
+var Source = Promise.promisifyAll(require('./api/source/source.model'));
+var Item = Promise.promisifyAll(require('./api/item/item.model'));
+var Thing = Promise.promisifyAll(require('./api/thing/thing.model'));
+var mongoose = Promise.promisifyAll(require('mongoose'));
 var _ = require('lodash');
 var co = require('co');
 
@@ -25,7 +26,7 @@ var isItemGetting = false;
 var getItemJob = new CronJob({
   cronTime: config.itemCron,
   timeZone: config.timeZone,
-  onTick: onTick,
+  onTick: onItemTick,
   onComplete: function () {
     logger.info('item job has completed');
   },
@@ -33,52 +34,33 @@ var getItemJob = new CronJob({
 });
 
 function findActiveSource() {
-  return new Promise(function (fulfill, reject) {
-    Source.find({active: true}).exec(function (err, sources) {
-      if (err) reject(err);
-      logger.info('get ' + sources.length + ' sources');
-      fulfill(sources);
-    });
-  });
+  return Source.find({active: true}).exec();
 }
 
-function insertItem(item) {
-  return new Promise(function (fulfil, reject) {
-    Item.findOne({url: item.url}).exec(function (err, doc) {
-      if (err) reject(err);
-      if (!doc) {
-        Item.create(item, function (err, doc) {
-          if (err) reject(err);
-          fulfil({
-            value: 1,
-            msg: item.url
-          });
-        });
-      } else {
-        fulfil({
-          value: 0,
-          msg: item.url
-        });
-      }
-    });
-  });
+function* insertItem(item) {
+  var doc = yield Item.findOne({url: item.url}).exec();
+  if (!doc) {
+    return Item.create(item);
+  } else {
+    return Promise.reject();
+  }
 }
 
 
-function onTick() {
+function onItemTick() {
   var sessionId = new Date();
   if (!isItemGetting) {
     isItemGetting = true;
     co(function* () {
       var sources = yield findActiveSource();
-      var itemsBelongToSource = yield Promise.all(sources.map(src => {
+      var itemsBelongToSource = yield Promise.settle(sources.map(src => {
         return src.getItems();
       }));
-      var insertedItems = yield Promise.all(_.flatten(itemsBelongToSource).map(item => {
-        return insertItem(item);
+      var insertedItems = yield Promise.settle(_.flatten(itemsBelongToSource.filter( pi => {return pi.isFulfilled();}).map(items => { return items.value(); } )).map(item => {
+        return co(insertItem(item));
       }));
       logger.info('finished item crawling, inserted ' + insertedItems.filter(item => {
-          return item.value === 1;
+          return item.isFulfilled();
         }).length + ' items');
     }).then(function () {
       isItemGetting = false;
@@ -124,35 +106,17 @@ function onThingTick() {
     isThingGetting = true;
     co(function* () {
       var items = yield findUnCrawledItem();
-      var things = yield Promise.all(items.map(item => {
+      var things = yield Promise.settle(items.map(item => {
         return item.getOneThing();
       }));
 
-      var savedThings = yield Promise.all(things.filter(thing => {
-        return !!thing
-      }).map(thing => {
-        return new Promise(function (fulfil, reject) {
-          Thing.findOne({source: thing.source}).exec(function (err, doc) {
-            if (err) {
-              reject(err);
-            }
-            if (!doc) {
-              Thing.create(thing, function (err, t) {
-                if (err) {
-                  reject(err);
-                }
-                else {
-                  fulfil(1);
-                }
-              });
-            } else {
-              fulfil(0);
-            }
-          });
-        });
+      var savedThings = yield Promise.settle(things.filter(thing => {
+        return thing.isFulfilled();
+      }).map(pi => {
+        return co(insertThing(pi.value()));
       }));
       logger.info("finished item crawling, inserted " + savedThings.filter(t => {
-          return t === 1;
+          return t.isFulfilled();
         }).length + " things");
     }).then(function () {
       isThingGetting = false;
@@ -167,12 +131,16 @@ function onThingTick() {
 
 
 function findUnCrawledItem() {
-  return new Promise(function (fulfil, reject) {
-    Item.find({crawled: false}).exec(function (err, items) {
-      if (err) reject(err);
-      else fulfil(items);
-    })
-  });
+  return Item.find({crawled: false}).exec();
+}
+
+function* insertThing(thing) {
+  var doc = yield Thing.findOne({source: thing.source}).exec();
+  if (!doc) {
+    return Thing.create(thing);
+  } else {
+    return Promise.reject();
+  }
 }
 
 logger.info('Crawler has been started, thing cron:' + config.thingCron + ' item cron : ' + config.itemCron);
