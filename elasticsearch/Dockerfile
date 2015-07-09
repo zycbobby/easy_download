@@ -14,9 +14,9 @@ RUN cd /elasticsearch-analysis-ik && mvn clean package
 RUN ./usr/share/elasticsearch/bin/plugin -i mobz/elasticsearch-head
 # RUN ./usr/share/elasticsearch/bin/plugin -i elasticsearch/marvel/latest
 
-# install shield
-RUN ./usr/share/elasticsearch/bin/plugin -i elasticsearch/license/latest
-RUN ./usr/share/elasticsearch/bin/plugin -i elasticsearch/shield/latest
+# install shield, but license would expire, use nginx to provide basic authentication instead
+# RUN ./usr/share/elasticsearch/bin/plugin -i elasticsearch/license/latest
+# RUN ./usr/share/elasticsearch/bin/plugin -i elasticsearch/shield/latest
 RUN ./usr/share/elasticsearch/bin/shield/esusers useradd zuo -r admin -p 123
 
 RUN cd /usr/share/elasticsearch/plugins/ && mkdir analysis-ik
