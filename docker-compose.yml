@@ -27,7 +27,7 @@ crawler:
      - MONGOLAB_URI=mongodb://db:27017/easydownload-dev
      - ITEM_CRON=0 */5 * * * *
      - THING_CRON=0 */10 * * * *
-  command: node server/crawler.js
+  command: node --harmony server/crawler.js # iojs --harmony_array_functions server/crawler.js is also ok and preferred
 
 essync:
   image: easydownload_web:latest
