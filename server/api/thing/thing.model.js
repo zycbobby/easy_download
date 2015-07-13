@@ -2,22 +2,24 @@
 
 var mongoose = require('mongoose'),
   Schema = mongoose.Schema,
-  Item = require('../item/item.model'),
   validate = require('mongoose-validator');
-var es = require('elasticsearch');
+
+var Promise = require('bluebird');
+var co = require('co');
+var ItemP = Promise.promisifyAll(require('../item/item.model'));
+var es = Promise.promisifyAll(require('elasticsearch'));
 var config = require('../../config/environment');
 var esConfig = config.elasticSearch;
-var ThingEs = require('./thing.es');
 
-  var log4js = require('log4js');
-  log4js.configure(config.log4js);
-  var logger = log4js.getLogger('normal');
-  logger.setLevel('INFO');
+var log4js = require('log4js');
+log4js.configure(config.log4js);
+var logger = log4js.getLogger('normal');
+logger.setLevel('INFO');
 
 var ThingSchema = new Schema({
   title: {
-    type : String,
-    es_indexed:true
+    type: String,
+    es_indexed: true
   },
 
   source: {
@@ -27,7 +29,7 @@ var ThingSchema = new Schema({
   info: {
     price: {
       price: String,
-      guessprice : Number,
+      guessprice: Number,
       unit: String
     },
 
@@ -66,8 +68,8 @@ var ThingSchema = new Schema({
     'default': false
   },
 
-  createdAt : Date,
-  updatedAt : Date
+  createdAt: Date,
+  updatedAt: Date
 });
 
 ThingSchema.pre('save', function (next) {
@@ -131,18 +133,10 @@ ThingSchema.pre('save', function (next) {
 });
 
 
-ThingSchema.post('save', function (doc) {
-  var self = this;
-  Item.findOneAndUpdate({url: doc.source}, {$set: {crawled: true}}, function (err, item) {
-    if (err || !item) {
-      logger.error('fail to execute thing post save ');
-    }
-    logger.info('crawl ' + doc.source);
-  });
-});
-
 var ThingModel = mongoose.model('Thing', ThingSchema);
 module.exports = ThingModel;
+
+var ThingP = Promise.promisifyAll(ThingModel);
 
 ThingSchema.path('source').validate(function (value, cb) {
   return ThingModel.findOne({source: value}).exec(function (err, model) {
@@ -150,14 +144,37 @@ ThingSchema.path('source').validate(function (value, cb) {
   });
 }, 'thing.source already exists, ignore');
 
-ThingSchema.post('save', function(doc){
-  if (doc.wasNew) {
-    var client = new es.Client({
-      host : esConfig.host,
-      log: esConfig.loglevel
+
+// Error handling problem
+
+ThingSchema.post('save', function (thing) {
+  if (thing.wasNew) {
+    co(function* () {
+      try {
+        var client = new es.Client({
+          host: esConfig.host,
+          log: esConfig.loglevel
+        });
+
+        var response = yield client.index({
+          index: esConfig.index,
+          type: esConfig.type,
+          id: '' + thing._id,
+          body: thing
+        });
+
+        logger.info(response);
+        var res = yield ThingP.findOneAndUpdate({_id: thing._id}, {indexed: true});
+        logger.info('[ThingESClient]' + thing._id + ' was indexed');
+
+        var item = yield ItemP.findOneAndUpdate({url: thing.source}, {$set: {crawled: true}});
+        logger.info('[ThingESClient]' + item.url + ' was set to crawled');
+
+      } catch (err) {
+        logger.error(err);
+        logger.info('continue');
+      }
     });
-    var thingEs = new ThingEs(client);
-    thingEs.indexThing(doc).done();
   }
 });
 
@@ -166,4 +183,4 @@ function handleError(err) {
     logger.error(err);
     throw err;
   }
-};
+}
