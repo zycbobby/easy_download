@@ -10,19 +10,14 @@ var Thing = Promise.promisifyAll(require('./api/thing/thing.model'));
 var mongoose = Promise.promisifyAll(require('mongoose'));
 var _ = require('lodash');
 var co = require('co');
-
-var log4js = require('log4js');
-log4js.configure(config.log4js);
-
-var logger = log4js.getLogger('normal');
-logger.setLevel('INFO');
+var crawler = require('./util/crawler');
+var logger = require('./util/logger');
 
 // Connect to database
 mongoose.connect(config.mongo.uri, config.mongo.options);
 
 var isItemGetting = false;
 
-//
 var getItemJob = new CronJob({
   cronTime: config.itemCron,
   timeZone: config.timeZone,
@@ -33,7 +28,7 @@ var getItemJob = new CronJob({
   start: false
 });
 
-function findActiveSource() {
+function* findActiveSource() {
   return Source.find({active: true}).exec();
 }
 
@@ -46,22 +41,20 @@ function* insertItem(item) {
   }
 }
 
-
 function onItemTick() {
   var sessionId = new Date();
   if (!isItemGetting) {
     isItemGetting = true;
     co(function* () {
       var sources = yield findActiveSource();
-      var itemsBelongToSource = yield Promise.settle(sources.map(src => {
-        return src.getItems();
+      var items = yield crawler.getItems(sources);
+      var insertedItems = yield Promise.settle(items.map(item => {
+        return co(insertItem(item))
       }));
-      var insertedItems = yield Promise.settle(_.flatten(itemsBelongToSource.filter( pi => {return pi.isFulfilled();}).map(items => { return items.value(); } )).map(item => {
-        return co(insertItem(item));
-      }));
+
       logger.info('finished item crawling, inserted ' + insertedItems.filter(item => {
-        return item.isFulfilled();
-      }).length + ' items');
+          return item.isFulfilled();
+        }).length + ' items');
     }).then(function () {
       isItemGetting = false;
     }).catch(function (err) {
@@ -106,18 +99,14 @@ function onThingTick() {
     isThingGetting = true;
     co(function* () {
       var items = yield findUnCrawledItem();
-      var things = yield Promise.settle(items.map(item => {
-        return item.getOneThing();
+      var things = yield crawler.getThings(items);
+      var savedThings = yield Promise.settle(things.map( thing => {
+        return co(insertThing(thing));
       }));
 
-      var savedThings = yield Promise.settle(things.filter(thing => {
-        return thing.isFulfilled();
-      }).map(pi => {
-        return co(insertThing(pi.value()));
-      }));
-      logger.info("finished item crawling, inserted " + savedThings.filter(t => {
-        return t.isFulfilled();
-      }).length + " things");
+      logger.info("finished thing crawling, inserted " + savedThings.filter(t => {
+          return t.isFulfilled();
+        }).length + " things");
     }).then(function () {
       isThingGetting = false;
     }).catch(function (err) {
@@ -130,7 +119,7 @@ function onThingTick() {
 }
 
 
-function findUnCrawledItem() {
+function* findUnCrawledItem() {
   return Item.find({crawled: false}).exec();
 }
 
