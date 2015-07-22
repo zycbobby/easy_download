@@ -20,7 +20,7 @@ curl -XPUT http://localhost:9200/mongoindex
 ## Configure the index
 
  - Create Mapping, only the title is needed to indexed
- 
+
 ```bash
 #!/bin/bash
 curl -XPOST http://localhost:9200/mongoindex/thing/_mapping -d'
@@ -51,7 +51,7 @@ curl -XPOST http://localhost:9200/mongoindex/thing/_mapping -d'
 Use [npm-elasticsearch](https://www.npmjs.com/package/elasticsearch)
 
 
-## Search with 
+## Search with
 
 ```bash
 curl -XPOST http://localhost:9200/mongoindex/thing/_search  -d'
@@ -86,3 +86,72 @@ curl -XPOST http://localhost:9200/mongoindex/_validate/query?explain -d '
 }
 '
 ```
+
+# Search like a database
+
+** You should not use elastic search as a database **
+
+POST to http://es.misscatandzuozuo.info/_all/thing/_search with data
+
+```
+{
+  "fields": [
+    "_parent",
+    "_source"
+  ],
+  "query": {
+    "bool": {
+      "must": [],
+      "must_not": [],
+      "should": [
+        {
+          "match_all": {}
+        }
+      ]
+    }
+  },
+  "from": 0,
+  "size": 1,
+  "sort": [
+    {
+      "createdAt": {
+        "reverse": true
+      }
+    }
+  ],
+  "facets": {},
+  "version": true
+}
+```
+
+```bash
+curl -XPOST http://name:pwd@es.misscatandzuozuo.info/_all/thing/_search -d'
+{
+  "fields": [
+    "_parent",
+    "_source"
+  ],
+  "query": {
+    "bool": {
+      "must": [],
+      "must_not": [],
+      "should": [
+        {
+          "match_all": {}
+        }
+      ]
+    }
+  },
+  "from": 0,
+  "size": 1,
+  "sort": [
+    {
+      "createdAt": {
+        "reverse": true
+      }
+    }
+  ],
+  "facets": {},
+  "version": true
+}
+'
