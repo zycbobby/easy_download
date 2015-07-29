@@ -47,6 +47,25 @@ function* setDeviceTag(registerId, tags) {
   })
 }
 
+
+/**
+ * send notification use RegisterId
+ * @param registerId
+ * @param thing
+ */
+function* sendWithRegisterId(registerId, thing) {
+
+}
+
+/**
+ * send notification use tag
+ * @param tag
+ * @param thing
+ */
+function* sendWithTag(tag, thing) {
+
+}
+
 /**
  * This function is just for testing, set tags
  * @param registerId
