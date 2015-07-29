@@ -17,8 +17,8 @@ mongoose.connect(config.mongo.uri, config.mongo.options);
 // Populate DB with sample data
 if(config.seedDB) { require('./config/seed'); }
 
-// initialize the index of elastic search
-if(config.elasticSearch)  { require('./config/elasticsearch');}
+// this line is very dangerout and will delete th index of elastic search, please be careful when you uncomment it
+// if(config.elasticSearch)  { require('./config/elasticsearch');}
 
 // Setup server
 var app = express();

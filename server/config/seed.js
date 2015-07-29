@@ -18,13 +18,15 @@ User.findQ().then(function(data) {
       provider: 'local',
       name: 'Test User',
       email: 'test@test.com',
-      password: 'test'
+      password: 'test',
+      registerId: '123'
     }, {
       provider: 'local',
       role: 'admin',
       name: 'Admin',
       email: 'admin@admin.com',
-      password: 'admin'
+      password: 'admin',
+      registerId: '567'
     }
   )
 }).then(function(){

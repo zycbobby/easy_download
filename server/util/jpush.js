@@ -52,19 +52,23 @@ function* setDeviceTag(registerId, tags) {
  * @param registerId
  * @param tags
  */
-function* testSetTag(registerId, tags) {
-  var tagsBeforeAdded = yield getDeviceTagAlias(registerId);
-  console.log(tagsBeforeAdded);
-  var ret = yield setDeviceTag(registerId, tags);
-  console.log(ret);
-  var tagsAfterAdded = yield getDeviceTagAlias(registerId);
-  console.log(tagsAfterAdded);
-}
-
-
-co(testSetTag('0702d6fe4a6', ['tag1'])).catch(function(err) {
-  console.log(err);
-});
+//function* testSetTag(registerId, tags) {
+//  var tagsBeforeAdded = yield getDeviceTagAlias(registerId);
+//  console.log(tagsBeforeAdded);
+//  var ret = yield setDeviceTag(registerId, tags);
+//  console.log(ret);
+//  var tagsAfterAdded = yield getDeviceTagAlias(registerId);
+//  console.log(tagsAfterAdded);
+//}
+//
+//
+//co(testSetTag('0702d6fe4a6', ['tag1'])).catch(function(err) {
+//  console.log(err);
+//});
 
 
 // 0702d6fe4a6
+
+module.exports = {
+  setDeviceTag: setDeviceTag
+};
