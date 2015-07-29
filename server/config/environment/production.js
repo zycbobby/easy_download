@@ -18,11 +18,11 @@ module.exports = {
     uri: process.env.MONGOLAB_URI ||
     process.env.MONGOHQ_URL ||
     process.env.OPENSHIFT_MONGODB_DB_URL + process.env.OPENSHIFT_APP_NAME ||
-    'mongodb://localhost/easydownload'
+    'mongodb://localhost:27017/easydownload'
   },
 
   elasticSearch : {
-    host : process.env.ELASTICSEARCH_URI || 'localhost:9200',
+    host : process.env.ELASTICSEARCH_URI || 'zuo:22216785@es.misscatandzuozuo.info',
     index : 'mongoindex',
     type: 'thing',
     loglevel : 'trace',
@@ -65,5 +65,6 @@ module.exports = {
   itemCron: process.env.ITEM_CRON || '0 */5 9-23 * * *',
   thingCron: process.env.THING_CRON || '0 */20 9-23 * * *',
   timeZone: 'Asia/Shanghai',
-  esCron : process.env.ES_CRON || '0 0 0-8 * * *'
+  esCron : process.env.ES_CRON || '0 0 0-8 * * *',
+  seedDB: true
 };

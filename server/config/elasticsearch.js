@@ -5,7 +5,6 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 var Thing = require('../api/thing/thing.model');
 var es = require('elasticsearch');
 var esConfig = require('./environment').elasticSearch;
-var ThingEs = require('../api/thing/thing.es');
 var async = require('async');
 
 var client = new es.Client({
