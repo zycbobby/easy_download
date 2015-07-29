@@ -58,6 +58,11 @@ var all = {
         category: 'normal'
       }
     ]
+  },
+
+  jpush : {
+    appKey : '38fa276112d6d67fce3ad799',
+    masterSecret: '050d37f70f2e8b36c2d7f7ec'
   }
 };
 
