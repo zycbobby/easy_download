@@ -89,5 +89,6 @@ function* sendWithTag(tag, thing) {
 // 0702d6fe4a6
 
 module.exports = {
-  setDeviceTag: setDeviceTag
+  setDeviceTag: setDeviceTag,
+  sendWithTag: sendWithTag
 };

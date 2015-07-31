@@ -1,5 +1,7 @@
 'use strict';
 
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+
 var mongoose = require('mongoose'),
   Schema = mongoose.Schema,
   validate = require('mongoose-validator');
@@ -7,6 +9,7 @@ var mongoose = require('mongoose'),
 var Promise = require('bluebird');
 var co = require('co');
 var ItemP = Promise.promisifyAll(require('../item/item.model'));
+var UserP = Promise.promisifyAll(require('../user/user.model'));
 var es = Promise.promisifyAll(require('elasticsearch'));
 var config = require('../../config/environment');
 var esConfig = config.elasticSearch;
@@ -15,6 +18,8 @@ var log4js = require('log4js');
 log4js.configure(config.log4js);
 var logger = log4js.getLogger('normal');
 logger.setLevel('INFO');
+
+var seg = require('../../util/segmentation');
 
 var ThingSchema = new Schema({
   title: {
@@ -146,7 +151,7 @@ ThingSchema.path('source').validate(function (value, cb) {
 
 
 // Error handling problem
-
+//
 ThingSchema.post('save', function (thing) {
   if (thing.wasNew) {
     co(function* () {
@@ -178,9 +183,28 @@ ThingSchema.post('save', function (thing) {
   }
 });
 
+// jpush
+
+ThingSchema.post('save', function (thing) {
+  if (thing.wasNew) {
+    co(function* test(){
+      var words = yield seg.doSegment(thing.title);
+      for(var i = 0; i < words.length; i++) {
+        var tag = words[i];
+        var user = yield UserP.findOne({ 'tags' : tag});
+        if (user) {
+          // push words[i]
+          console.log('jpush ' + tag);
+        }
+      }
+    }).catch(handleError);
+  }
+});
+
 function handleError(err) {
   if (err) {
     logger.error(err);
     throw err;
   }
 }
+
