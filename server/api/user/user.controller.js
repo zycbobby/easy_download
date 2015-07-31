@@ -15,7 +15,7 @@ exports.index = function(req, res) {
 
 // Get a single user
 exports.show = function(req, res) {
-  User.findOne({ 'name' : req.params.username}, function (err, user) {
+  User.findOne({ 'registerId' : req.params.registerId}, function (err, user) {
     if(err) { return handleError(res, err); }
     if(!user) { return res.send(404); }
     return res.json(user);
@@ -32,7 +32,7 @@ exports.create = function(req, res) {
 
 // create or update a user
 exports.createOrUpdate = function(req, res) {
-  User.findOne({ 'name' : req.body.name }, function (err, user) {
+  User.findOne({ 'registerId' : req.body.registerId }, function (err, user) {
     if (err) { return handleError(res, err); }
     if(!user) {
       // create this user
@@ -45,7 +45,10 @@ exports.createOrUpdate = function(req, res) {
         });
       });
     } else {
+      if(req.body._id) { delete req.body._id; }
       var updated = _.merge(user, req.body);
+      console.log(updated);
+      updated.markModified('tags');
       updated.save(function (err) {
         if (err) { return handleError(res, err); }
         co(jpush.setDeviceTag(user.registerId, user.tags)).then(function(){
