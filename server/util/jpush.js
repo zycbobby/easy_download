@@ -63,28 +63,20 @@ function* sendWithRegisterId(registerId, thing) {
  * @param thing
  */
 function* sendWithTag(tag, thing) {
-
+  return new Promise((resolve, reject) => {
+    client.push()
+      .setPlatform('android')
+      .setAudience(JPush.tag(tag))
+      .setNotification(thing.title)
+      .send(function (err, res) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      });
+  });
 }
-
-/**
- * This function is just for testing, set tags
- * @param registerId
- * @param tags
- */
-//function* testSetTag(registerId, tags) {
-//  var tagsBeforeAdded = yield getDeviceTagAlias(registerId);
-//  console.log(tagsBeforeAdded);
-//  var ret = yield setDeviceTag(registerId, tags);
-//  console.log(ret);
-//  var tagsAfterAdded = yield getDeviceTagAlias(registerId);
-//  console.log(tagsAfterAdded);
-//}
-//
-//
-//co(testSetTag('0702d6fe4a6', ['tag1'])).catch(function(err) {
-//  console.log(err);
-//});
-
 
 // 0702d6fe4a6
 

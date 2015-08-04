@@ -13,6 +13,7 @@ var UserP = Promise.promisifyAll(require('../user/user.model'));
 var es = Promise.promisifyAll(require('elasticsearch'));
 var config = require('../../config/environment');
 var esConfig = config.elasticSearch;
+var jpush = require('../../util/jpush');
 
 var log4js = require('log4js');
 log4js.configure(config.log4js);
@@ -20,6 +21,7 @@ var logger = log4js.getLogger('normal');
 logger.setLevel('INFO');
 
 var seg = require('../../util/segmentation');
+
 
 var ThingSchema = new Schema({
   title: {
@@ -152,15 +154,15 @@ ThingSchema.path('source').validate(function (value, cb) {
 
 // Error handling problem
 //
+var client = new es.Client({
+  host: esConfig.host,
+  log: esConfig.loglevel
+});
+
 ThingSchema.post('save', function (thing) {
-  if (thing.wasNew) {
+  if (thing.wasNew && !esConfig.notInsert) {
     co(function* () {
       try {
-        var client = new es.Client({
-          host: esConfig.host,
-          log: esConfig.loglevel
-        });
-
         var response = yield client.index({
           index: esConfig.index,
           type: esConfig.type,
@@ -180,22 +182,27 @@ ThingSchema.post('save', function (thing) {
         logger.info('continue');
       }
     });
+  } else {
+    logger.info('thing' + thing._id +' was not inserted');
   }
 });
 
 // jpush
-
 ThingSchema.post('save', function (thing) {
   if (thing.wasNew) {
     co(function* test(){
       var words = yield seg.doSegment(thing.title);
+      var tagsToSend = [];
       for(var i = 0; i < words.length; i++) {
         var tag = words[i];
         var user = yield UserP.findOne({ 'tags' : tag});
         if (user) {
-          // push words[i]
-          console.log('jpush ' + tag);
+          logger.info('tags ' + tag + ' was included');
+          tagsToSend.push(tag);
         }
+      }
+      if (tagsToSend.length > 0) {
+        yield jpush.sendWithTag(tagsToSend, thing);
       }
     }).catch(handleError);
   }
