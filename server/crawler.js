@@ -14,6 +14,7 @@ var crawler = require('./util/crawler');
 var logger = require('./util/logger');
 
 // Connect to database
+console.log('mongo uri : ' + config.mongo.uri);
 mongoose.connect(config.mongo.uri, config.mongo.options);
 
 var isItemGetting = false;
