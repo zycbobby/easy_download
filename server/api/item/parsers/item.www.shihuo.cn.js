@@ -33,7 +33,7 @@ shihuoCrawler.prototype.getOneThing = function() {
 
     var $ = res.jquery;
     var thing = new Thing();
-    if (self.type === 1) { // normal youhui
+    if (self.type === 1 || self.type === 5) { // normal youhui
       var article =  $('div.area-prolist');
 
       thing.title = article.find('h2.article-title').first().text().trim();
@@ -53,28 +53,6 @@ shihuoCrawler.prototype.getOneThing = function() {
                     url : ele.attribs.src
                   });
         }
-      });
-
-      defer.resolve(thing);
-    }
-
-    else if (self.type === 5){ // haitao
-      var article =  $('div.detail-main');
-
-      thing.title = article.find('div.detail-title h1').first().text().trim();
-      thing.source = self.url;
-      thing.info = {
-        price : {
-          price : article.find('div.detail-title h1 s').first().text().trim()
-        },
-        tags : [],
-        images : []
-      };
-
-      article.find('div.goods-info img').each(function(idx, ele) {
-        thing.info.images.push( {
-          url :ele.attribs.src
-        });
       });
 
       defer.resolve(thing);
