@@ -155,3 +155,24 @@ curl -XPOST http://name:pwd@es.misscatandzuozuo.info/_all/thing/_search -d'
   "version": true
 }
 '
+
+# How to decide where a document will match any query?
+
+It is a reverted problem. Elastic Search use percolator
+
+## First
+
+```bash
+curl -XPOST 'localhost:9200/my-index/.percolator/' -d '{    "query" : {        "match" : {            "message" : "bonsai tree"        }    }}'
+```
+
+This will create percolator, sometimes you can use put but also decide the id.
+
+## Second
+
+ ```bash
+ curl -XGET 'localhost:9200/my-index/my-type/_percolate' -d '{     "doc" : {         "message" : "A new bonsai tree in the office"     } }'
+ ```
+
+This setence will reture the percolator(query) which is successfully matched by this doccument.
+
