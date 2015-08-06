@@ -48,7 +48,7 @@ exports.createOrUpdate = function(req, res) {
       if(req.body._id) { delete req.body._id; }
       var updated = _.merge(user, req.body);
       console.log(updated);
-      updated.markModified('tags');
+      updated.markModified('tags'); // this one is very important for mongoose
       updated.save(function (err) {
         if (err) { return handleError(res, err); }
         co(jpush.setDeviceTag(user.registerId, user.tags)).then(function(){
