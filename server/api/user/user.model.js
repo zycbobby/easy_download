@@ -12,7 +12,9 @@ var UserSchema = new Schema({
     type: String,
     index: {unique: true}
   },
-  tags: [String]
+  tags: [String],
+  queries: [{type: Schema.Types.ObjectId, ref: 'Query'}]
+
 });
 
 module.exports = mongoose.model('User', UserSchema);
