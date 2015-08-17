@@ -6,6 +6,8 @@
 'use strict';
 var mongoose = require('mongoose-q')(require('mongoose'));
 var Thing = require('../api/thing/thing.model');
+var History = require('../api/history/history.model');
+var Query = require('../api/query/query.model');
 var User = require('../api/user/user.model');
 var Item = require('../api/item/item.model');
 var Source = require('../api/source/source.model');
@@ -76,3 +78,6 @@ Item.removeQ().then(function(){
 
   return true;
 }).done();
+
+History.removeQ().done();
+Query.removeQ().done();

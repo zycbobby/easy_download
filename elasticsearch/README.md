@@ -174,5 +174,5 @@ This will create percolator, sometimes you can use put but also decide the id.
  curl -XGET 'localhost:9200/my-index/my-type/_percolate' -d '{     "doc" : {         "message" : "A new bonsai tree in the office"     } }'
  ```
 
-This setence will reture the percolator(query) which is successfully matched by this doccument.
+This sentence will reture the percolator(query) which is successfully matched by this doccument.
 

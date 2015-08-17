@@ -11,6 +11,13 @@ var client = new es.Client({
   log: esConfig.loglevel
 });
 
+
+/**
+ * @deprecated
+ *
+ * @param str
+ * @returns {Array}
+ */
 function* doSegment(str) {
   var response = yield client.indices.validateQuery({
       index: 'mongoindex',
@@ -29,10 +36,17 @@ function* doSegment(str) {
 
 }
 
-//co(doSegment('meiji 明治 SMART BODY 明治营养代餐蛋白粉 14餐1473日元')).then(words => {
+
+function* explain(str) {
+  return str;
+}
+
+
+//co(doSegment('meiji 明治 SMART BODY 明`治营养代餐蛋白粉 14餐1473日元')).then(words => {
 //  console.log(words);
 //});
 
 module.exports = {
-  doSegment: doSegment
+  doSegment: doSegment,
+  explain: explain
 }

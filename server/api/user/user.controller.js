@@ -3,7 +3,9 @@
 var _ = require('lodash');
 var User = require('./user.model');
 var co = require('co');
-var jpush = require('../../util/jpush');
+// var jpush = require('../../util/jpush');
+var segmentTool = require('../../util/segmentation');
+var Query = require('../query/query.model');
 
 // Get list of users
 exports.index = function(req, res) {

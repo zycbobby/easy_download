@@ -188,25 +188,25 @@ ThingSchema.post('save', function (thing) {
 });
 
 // jpush
-ThingSchema.post('save', function (thing) {
-  if (thing.wasNew) {
-    co(function* test(){
-      var words = yield seg.doSegment(thing.title);
-      var tagsToSend = [];
-      for(var i = 0; i < words.length; i++) {
-        var tag = words[i];
-        var user = yield UserP.findOne({ 'tags' : tag});
-        if (user) {
-          logger.info('tags ' + tag + ' was included');
-          tagsToSend.push(tag);
-        }
-      }
-      if (tagsToSend.length > 0) {
-        yield jpush.sendWithTag(tagsToSend, thing);
-      }
-    }).catch(handleError);
-  }
-});
+//ThingSchema.post('save', function (thing) {
+//  if (thing.wasNew) {
+//    co(function* test(){
+//      var words = yield seg.doSegment(thing.title);
+//      var tagsToSend = [];
+//      for(var i = 0; i < words.length; i++) {
+//        var tag = words[i];
+//        var user = yield UserP.findOne({ 'tags' : tag});
+//        if (user) {
+//          logger.info('tags ' + tag + ' was included');
+//          tagsToSend.push(tag);
+//        }
+//      }
+//      if (tagsToSend.length > 0) {
+//        yield jpush.sendWithTag(tagsToSend, thing);
+//      }
+//    }).catch(handleError);
+//  }
+//});
 
 function handleError(err) {
   if (err) {

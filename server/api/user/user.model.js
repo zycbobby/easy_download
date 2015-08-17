@@ -3,6 +3,8 @@
 var mongoose = require('mongoose'),
   Schema = mongoose.Schema;
 
+var Promise = require('bluebird');
+
 var UserSchema = new Schema({
   name: {
     type: String,
@@ -12,10 +14,17 @@ var UserSchema = new Schema({
     type: String,
     index: {unique: true}
   },
-  platform: String,
-  tags: [String],
-  queries: [{type: Schema.Types.ObjectId, ref: 'Query'}]
-
+  platform: String
 });
 
-module.exports = mongoose.model('User', UserSchema);
+var UserModel = mongoose.model('User', UserSchema);
+module.exports = UserModel;
+
+UserModel.findByToken = function* (token) {
+  return new Promise(function(resolve, reject) {
+    UserModel.findOne({ "token" : token}).exec(function(err, user) {
+      if (err || !user) { reject(err)}
+      resolve(user);
+    })
+  });
+}
