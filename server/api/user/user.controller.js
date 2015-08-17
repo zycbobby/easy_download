@@ -15,7 +15,7 @@ exports.index = function(req, res) {
 
 // Get a single user
 exports.show = function(req, res) {
-  User.findOne({ 'registerId' : req.params.registerId}, function (err, user) {
+  User.findOne({ 'token' : req.params.token}, function (err, user) {
     if(err) { return handleError(res, err); }
     if(!user) { return res.send(404); }
     return res.json(user);
@@ -32,30 +32,22 @@ exports.create = function(req, res) {
 
 // create or update a user
 exports.createOrUpdate = function(req, res) {
-  User.findOne({ 'registerId' : req.body.registerId }, function (err, user) {
+  User.findOne({ 'token' : req.body.token }, function (err, user) {
     if (err) { return handleError(res, err); }
     if(!user) {
       // create this user
       User.create(req.body, function(err, user) {
         if(err) { return handleError(res, err); }
-        co(jpush.setDeviceTag(user.registerId, user.tags)).then(function(){
-          return res.json(201, user);
-        }).catch(function(err) {
-          handleError(res, err);
-        });
+        return res.json(201, user);
       });
     } else {
       if(req.body._id) { delete req.body._id; }
       var updated = _.merge(user, req.body);
-      console.log(updated);
       updated.markModified('tags'); // this one is very important for mongooseomm
+      updated.markModified('queries'); // this one is very important for mongooseomm
       updated.save(function (err) {
         if (err) { return handleError(res, err); }
-        co(jpush.setDeviceTag(user.registerId, user.tags)).then(function(){
-          return res.json(200, user);
-        }).catch(function(err) {
-          handleError(res, err);
-        });
+        return res.json(200, user);
       });
     }
   });

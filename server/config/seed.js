@@ -15,18 +15,9 @@ User.findQ().then(function(data) {
 }).then(function(){
   return User.createQ(
     {
-      provider: 'local',
       name: 'Test User',
-      email: 'test@test.com',
-      password: 'test',
-      registerId: '123'
-    }, {
-      provider: 'local',
-      role: 'admin',
-      name: 'Admin',
-      email: 'admin@admin.com',
-      password: 'admin',
-      registerId: '567'
+      token: '12345678',
+      platform: 'android'
     }
   )
 }).then(function(){

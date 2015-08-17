@@ -8,10 +8,11 @@ var UserSchema = new Schema({
     type: String,
     index: {unique: true}
   },
-  registerId: {
+  token: {
     type: String,
     index: {unique: true}
   },
+  platform: String,
   tags: [String],
   queries: [{type: Schema.Types.ObjectId, ref: 'Query'}]
 
