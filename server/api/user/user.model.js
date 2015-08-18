@@ -14,7 +14,8 @@ var UserSchema = new Schema({
     type: String,
     index: {unique: true}
   },
-  platform: String
+  platform: String,
+  subscribtions: [{type: Schema.Types.ObjectId, ref: 'Query'}]
 });
 
 var UserModel = mongoose.model('User', UserSchema);

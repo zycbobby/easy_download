@@ -41,7 +41,6 @@ function* explain(str) {
   return str;
 }
 
-
 //co(doSegment('meiji 明治 SMART BODY 明`治营养代餐蛋白粉 14餐1473日元')).then(words => {
 //  console.log(words);
 //});

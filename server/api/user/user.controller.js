@@ -5,6 +5,7 @@ var User = require('./user.model');
 var co = require('co');
 // var jpush = require('../../util/jpush');
 var segmentTool = require('../../util/segmentation');
+var percolatorTool = require('../../util/percolator');
 var Query = require('../query/query.model');
 
 // Get list of users
@@ -29,6 +30,28 @@ exports.create = function(req, res) {
   User.create(req.body, function(err, user) {
     if(err) { return handleError(res, err); }
     return res.json(201, user);
+  });
+};
+
+exports.subscribe = function(req, res) {
+  var query = req.body.query;
+  co(function* (){
+    var percolator = yield percolatorTool.createPercolator(query);
+    var user = req.body.user;
+    User.findById(user._id).exec(function(err, user) {
+      if (err) { return handleError(res, err); }
+      user.subscribtions = user.subscribtions || [];
+      if (user.subscribtions.indexOf(query._id) < 0) {
+        user.subscribtions.push(query._id);
+        user.markModified('subscribtions');
+      }
+      user.save(function (err) {
+        if (err) { return handleError(res, err); }
+        return res.json(200, user);
+      })
+    });
+  }).catch(function(err){
+    res.send(500, err);
   });
 };
 

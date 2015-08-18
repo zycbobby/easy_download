@@ -8,6 +8,7 @@ var router = express.Router();
 router.get('/', controller.index);
 router.get('/:token', controller.show);
 router.post('/', controller.create);
+router.post('/_subscribe', controller.subscribe);
 router.put('/', controller.createOrUpdate);
 router.patch('/:id', controller.update);
 router.delete('/:id', controller.destroy);
