@@ -2,16 +2,24 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 var config = require('./config/environment');
+var esConfig = config.elasticSearch;
 var CronJob = require('cron').CronJob;
 var Promise = require('bluebird');
-var Source = Promise.promisifyAll(require('./api/source/source.model'));
-var Item = Promise.promisifyAll(require('./api/item/item.model'));
-var Thing = Promise.promisifyAll(require('./api/thing/thing.model'));
-var mongoose = Promise.promisifyAll(require('mongoose'));
+var Source = require('./api/source/source.model');
+var Item = require('./api/item/item.model');
+var Thing = require('./api/thing/thing.model');
+var mongoose = require('mongoose');
 var _ = require('lodash');
 var co = require('co');
 var crawler = require('./util/crawler');
 var logger = require('./util/logger');
+
+var es = require('elasticsearch');
+var client = new es.Client({
+  host: esConfig.host,
+  log: esConfig.loglevel
+});
+
 
 // Connect to database
 console.log('mongo uri : ' + config.mongo.uri);
@@ -106,8 +114,12 @@ function onThingTick() {
       }));
 
       logger.info("finished thing crawling, inserted " + savedThings.filter(t => {
-          return t.isFulfilled();
+          return t && t.isFulfilled();
         }).length + " things");
+
+      // count unIndexed thing
+      var count = yield Thing.count({ "indexed" : false}).exec();
+      logger.info("unindexed thing : " + count);
     }).then(function () {
       isThingGetting = false;
     }).catch(function (err) {
@@ -121,7 +133,7 @@ function onThingTick() {
 
 
 function* findUnCrawledItem(limit) {
-  var _limit  = limit || 10;
+  var _limit  = limit || 2;
   return Item.find({crawled: false}).limit(_limit).exec();
 }
 
@@ -130,7 +142,20 @@ function* insertThing(thing) {
   if (!doc) {
     return Thing.create(thing);
   } else {
-    return Promise.reject();
+    // set item.crawled = true
+    yield Item.findOneAndUpdate({url: thing.source}, { $set: { crawled: true } }).exec();
+    logger.info('set ' + thing.source + ' crawled true');
+    if (!doc.indexed && !esConfig.notInsert) {
+      // index them manually
+      var response = yield client.index({
+        index: esConfig.index,
+        type: esConfig.type,
+        id: '' + thing._id,
+        body: thing
+      });
+      var resp = yield Thing.findOneAndUpdate({ source: thing.source}, { $set: { indexed: true  } }).exec();
+    }
+
   }
 }
 

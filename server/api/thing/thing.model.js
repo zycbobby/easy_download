@@ -8,20 +8,15 @@ var mongoose = require('mongoose'),
 
 var Promise = require('bluebird');
 var co = require('co');
-var ItemP = Promise.promisifyAll(require('../item/item.model'));
-var UserP = Promise.promisifyAll(require('../user/user.model'));
+var Item = require('../item/item.model');
 var es = Promise.promisifyAll(require('elasticsearch'));
 var config = require('../../config/environment');
 var esConfig = config.elasticSearch;
-var jpush = require('../../util/jpush');
 
 var log4js = require('log4js');
 log4js.configure(config.log4js);
 var logger = log4js.getLogger('normal');
 logger.setLevel('INFO');
-
-var seg = require('../../util/segmentation');
-
 
 var ThingSchema = new Schema({
   title: {
@@ -143,8 +138,6 @@ ThingSchema.pre('save', function (next) {
 var ThingModel = mongoose.model('Thing', ThingSchema);
 module.exports = ThingModel;
 
-var ThingP = Promise.promisifyAll(ThingModel);
-
 ThingSchema.path('source').validate(function (value, cb) {
   return ThingModel.findOne({source: value}).exec(function (err, model) {
     return cb(!model);
@@ -171,10 +164,10 @@ ThingSchema.post('save', function (thing) {
         });
 
         logger.info(response);
-        var res = yield ThingP.findOneAndUpdate({_id: thing._id}, {indexed: true});
+        var res = yield Thing.findOneAndUpdate({_id: thing._id}, { indexed: true }).exec();
         logger.info('[ThingESClient]' + thing._id + ' was indexed');
 
-        var item = yield ItemP.findOneAndUpdate({url: thing.source}, {$set: {crawled: true}});
+        var item = yield Item.findOneAndUpdate({url: thing.source}, { $set: { crawled: true } }).exec();
         logger.info('[ThingESClient]' + item.url + ' was set to crawled');
 
       } catch (err) {
@@ -184,27 +177,6 @@ ThingSchema.post('save', function (thing) {
     });
   } else {
     logger.info('thing' + thing._id +' was not inserted');
-  }
-});
-
-// jpush
-ThingSchema.post('save', function (thing) {
-  if (thing.wasNew) {
-    co(function* test(){
-      var words = yield seg.doSegment(thing.title);
-      var tagsToSend = [];
-      for(var i = 0; i < words.length; i++) {
-        var tag = words[i];
-        var user = yield UserP.findOne({ 'tags' : tag});
-        if (user) {
-          logger.info('tags ' + tag + ' was included');
-          tagsToSend.push(tag);
-        }
-      }
-      if (tagsToSend.length > 0) {
-        yield jpush.sendWithTag(tagsToSend, thing);
-      }
-    }).catch(handleError);
   }
 });
 
