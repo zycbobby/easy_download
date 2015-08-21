@@ -164,7 +164,7 @@ ThingSchema.post('save', function (thing) {
         });
 
         logger.info(response);
-        var res = yield Thing.findOneAndUpdate({_id: thing._id}, { indexed: true }).exec();
+        var res = yield ThingModel.findOneAndUpdate({_id: thing._id}, { $set: { indexed: true  }}).exec();
         logger.info('[ThingESClient]' + thing._id + ' was indexed');
 
         var item = yield Item.findOneAndUpdate({url: thing.source}, { $set: { crawled: true } }).exec();
