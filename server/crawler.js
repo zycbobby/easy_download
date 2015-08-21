@@ -120,8 +120,9 @@ function onThingTick() {
 }
 
 
-function* findUnCrawledItem() {
-  return Item.find({crawled: false}).exec();
+function* findUnCrawledItem(limit) {
+  var _limit  = limit || 10;
+  return Item.find({crawled: false}).limit(_limit).exec();
 }
 
 function* insertThing(thing) {

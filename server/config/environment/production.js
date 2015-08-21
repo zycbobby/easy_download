@@ -63,7 +63,7 @@ module.exports = {
 
 
   itemCron: process.env.ITEM_CRON || '0 */5 9-23 * * *',
-  thingCron: process.env.THING_CRON || '0 */20 9-23 * * *',
+  thingCron: process.env.THING_CRON || '*/30 * 9-23 * * *',
   timeZone: 'Asia/Shanghai',
   esCron : process.env.ES_CRON || '0 0 0-8 * * *',
   seedDB: true
