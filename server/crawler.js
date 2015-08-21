@@ -147,15 +147,16 @@ function* insertThing(thing) {
     logger.info('set ' + thing.source + ' crawled true');
     if (!doc.indexed && !esConfig.notInsert) {
       // index them manually
-      var response = yield client.index({
+      thing.updatedAt = Date.now();
+      thing.createdAt = Date.now();
+      yield client.index({
         index: esConfig.index,
         type: esConfig.type,
         id: '' + thing._id,
         body: thing
       });
-      var resp = yield Thing.findOneAndUpdate({ source: thing.source}, { $set: { indexed: true  } }).exec();
+      yield Thing.findOneAndUpdate({ source: thing.source}, { $set: { indexed: true  } }).exec();
     }
-
   }
 }
 
