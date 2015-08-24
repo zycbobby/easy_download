@@ -156,17 +156,7 @@ ThingSchema.post('save', function (thing) {
   if (thing.wasNew && !esConfig.notInsert) {
     co(function* () {
       try {
-        var response = yield client.index({
-          index: esConfig.index,
-          type: esConfig.type,
-          id: '' + thing._id,
-          body: thing
-        });
-
-        logger.info(response);
-        var res = yield ThingModel.findOneAndUpdate({_id: thing._id}, { $set: { indexed: true  }}).exec();
-        logger.info('[ThingESClient]' + thing._id + ' was indexed');
-
+        ThingModel.saveEs(thing);
         var item = yield Item.findOneAndUpdate({url: thing.source}, { $set: { crawled: true } }).exec();
         logger.info('[ThingESClient]' + item.url + ' was set to crawled');
 
@@ -179,6 +169,18 @@ ThingSchema.post('save', function (thing) {
     logger.info('thing' + thing._id +' was not inserted');
   }
 });
+
+
+ThingModel.saveEs = function* (thing) {
+  var response = yield client.index({
+    index: esConfig.index,
+    type: esConfig.type,
+    id: '' + thing._id,
+    body: thing
+  });
+  var res = yield ThingModel.findOneAndUpdate({_id: thing._id}, { $set: { indexed: true  }}).exec();
+  logger.info('[ThingESClient]' + thing._id + ' was indexed');
+};
 
 function handleError(err) {
   if (err) {

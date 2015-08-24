@@ -37,33 +37,17 @@ var getItemJob = new CronJob({
   start: false
 });
 
-function* findActiveSource() {
-  return Source.find({active: true}).exec();
-}
-
-function* insertItem(item) {
-  var doc = yield Item.findOne({url: item.url}).exec();
-  if (!doc) {
-    return Item.create(item);
-  } else {
-    return Promise.reject();
-  }
-}
-
 function onItemTick() {
   var sessionId = new Date();
   if (!isItemGetting) {
     isItemGetting = true;
     co(function* () {
-      var sources = yield findActiveSource();
+      var sources = yield Source.find({active: true}).exec();
       var items = yield crawler.getItems(sources);
-      var insertedItems = yield Promise.settle(items.map(item => {
-        return co(insertItem(item))
-      }));
-
-      logger.info('finished item crawling, inserted ' + insertedItems.filter(item => {
-          return item.isFulfilled();
-        }).length + ' items');
+      var insertedItems = yield items.map(item => {
+        return Item.create(item);
+      });
+      logger.info('finished item crawling, inserted ' + insertedItems.length + ' items');
     }).then(function () {
       isItemGetting = false;
     }).catch(function (err) {
@@ -107,19 +91,27 @@ function onThingTick() {
   if (!isThingGetting) {
     isThingGetting = true;
     co(function* () {
-      var items = yield findUnCrawledItem();
+      var items = yield Item.find({crawled: false}).limit(2).exec();
       var things = yield crawler.getThings(items);
-      var savedThings = yield Promise.settle(things.map( thing => {
-        return co(insertThing(thing));
-      }));
+      var savedThings = yield things.map( thing => {
+        return Thing.create(thing);
+      });
 
-      logger.info("finished thing crawling, inserted " + savedThings.filter(t => {
-          return t && t.isFulfilled();
-        }).length + " things");
+      logger.info("finished thing crawling, inserted " + savedThings.length + " things");
 
       // count unIndexed thing
       var count = yield Thing.count({ "indexed" : false}).exec();
       logger.info("unindexed thing : " + count);
+
+      // find unindexed thing
+      if (count > 0) {
+        things = yield Thing.find({ "indexed" : false}).limit(2).exec();
+        var indexedThings = yield things.map(t => {
+          return Thing.saveEs(t);
+        });
+        logger.info("indexed " + indexedThings.length +" things");
+      }
+
     }).then(function () {
       isThingGetting = false;
     }).catch(function (err) {
@@ -128,35 +120,6 @@ function onThingTick() {
     });
   } else {
     logger.info('[' + sessionId + '] thing is now getting, ignore this one');
-  }
-}
-
-
-function* findUnCrawledItem(limit) {
-  var _limit  = limit || 2;
-  return Item.find({crawled: false}).limit(_limit).exec();
-}
-
-function* insertThing(thing) {
-  var doc = yield Thing.findOne({source: thing.source}).exec();
-  if (!doc) {
-    return Thing.create(thing);
-  } else {
-    // set item.crawled = true
-    yield Item.findOneAndUpdate({url: thing.source}, { $set: { crawled: true } }).exec();
-    logger.info('set ' + thing.source + ' crawled true');
-    if (!doc.indexed && !esConfig.notInsert) {
-      // index them manually
-      thing.updatedAt = Date.now();
-      thing.createdAt = Date.now();
-      yield client.index({
-        index: esConfig.index,
-        type: esConfig.type,
-        id: '' + thing._id,
-        body: thing
-      });
-      yield Thing.findOneAndUpdate({ source: thing.source}, { $set: { indexed: true  } }).exec();
-    }
   }
 }
 
