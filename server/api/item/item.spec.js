@@ -1,20 +1,39 @@
 'use strict';
+// Set default node environment to development
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 var should = require('should');
-var app = require('../../app');
-var request = require('supertest');
+var Item = require('./item.model.js');
+var co = require('co');
 
-describe('GET /api/items', function() {
+require('../../config/mongoConnection.js');
 
-  it('should respond with JSON array', function(done) {
-    request(app)
-      .get('/api/items')
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end(function(err, res) {
-        if (err) return done(err);
-        res.body.should.be.instanceof(Array);
-        done();
-      });
+describe('Test Mongoose API', function() {
+  var item = {
+    "url" : "http://wanke.etao.com/detail/1612628-fake.html?wanke_src=feed",
+    "type" : 1,
+    "crawled" : false
+  };
+
+  beforeEach(function(done){
+    //add some test data
+    co(function* () {
+      var doc = yield Item.create(item);
+    }).then(done);
+  });
+
+  afterEach(function(done) {
+    co(function* (){
+      yield Item.remove({ "url" : item.url}).exec();
+    }).then(done);
+  });
+
+  it("should be retrieve by url", function(done){
+    co(function *() {
+      var doc = yield Item.findOne({ url : item.url}).exec();
+      doc.should.have.property('url', item.url);
+    }).then(done).catch(function(err){
+      done(err);
+    });
   });
 });

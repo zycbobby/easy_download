@@ -44,10 +44,17 @@ function onItemTick() {
     co(function* () {
       var sources = yield Source.find({active: true}).exec();
       var items = yield crawler.getItems(sources);
-      var insertedItems = yield items.map(item => {
-        return Item.create(item);
-      });
-      logger.info('finished item crawling, inserted ' + insertedItems.length + ' items');
+
+      var count = 0;
+      for(idx in items) {
+        var item = items[idx];
+        var doc = yield Item.findOne({ "url" : item.url }).exec();
+        if (!doc) {
+          yield Item.create(item);
+          count++;
+        }
+      }
+      logger.info('finished item crawling, inserted ' + count + ' items');
     }).then(function () {
       isItemGetting = false;
     }).catch(function (err) {

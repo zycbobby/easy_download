@@ -19,7 +19,7 @@ module.exports = {
     loglevel: 'warning',
     scanLimit : 30,
 
-    notInsert: false,
+    notInsert: true,
 
     "ikAugAnalyzer": {
       "analysis": {
