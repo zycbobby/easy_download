@@ -8,12 +8,14 @@ var co = require('co');
 
 require('../../config/mongoConnection.js');
 
+var item = {
+  "url" : "http://wanke.etao.com/detail/1612628-fake.html?wanke_src=feed",
+  "type" : 1,
+  "crawled" : false
+};
+
 describe('Test Mongoose API', function() {
-  var item = {
-    "url" : "http://wanke.etao.com/detail/1612628-fake.html?wanke_src=feed",
-    "type" : 1,
-    "crawled" : false
-  };
+
 
   beforeEach(function(done){
     //add some test data
@@ -37,3 +39,4 @@ describe('Test Mongoose API', function() {
     });
   });
 });
+
