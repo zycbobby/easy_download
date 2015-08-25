@@ -1,8 +1,7 @@
 
 
 [![Build Status](https://travis-ci.org/zycbobby/easy_download.svg?branch=master)](https://travis-ci.org/zycbobby/easy_download)
-
-[![Coverage Status](https://coveralls.io/repos/zycbobby/easy_download/badge.svg?branch=master)](https://coveralls.io/r/zycbobby/easy_download?branch=master)
+[![Coverage Status](https://coveralls.io/repos/zycbobby/easy_download/badge.svg?branch=master&service=github)](https://coveralls.io/github/zycbobby/easy_download?branch=master)
 
 # Make it work in one machine
 
