@@ -1,3 +1,7 @@
+
+
+[![Build Status](https://travis-ci.org/zycbobby/easy_download.svg?branch=master)](https://travis-ci.org/zycbobby/easy_download)
+
 # Make it work in one machine
 
 ## Build within production environment
