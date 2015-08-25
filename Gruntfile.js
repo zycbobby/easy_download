@@ -17,7 +17,8 @@ module.exports = function (grunt) {
     cdnify: 'grunt-google-cdn',
     protractor: 'grunt-protractor-runner',
     injector: 'grunt-asset-injector',
-    buildcontrol: 'grunt-build-control'
+    buildcontrol: 'grunt-build-control',
+    mocha_istanbul: 'grunt-mocha-istanbul'
   });
 
   // Time how long tasks take. Can help when optimizing build times
@@ -441,6 +442,18 @@ module.exports = function (grunt) {
       src: ['server/**/*.spec.js']
     },
 
+    mocha_istanbul: {
+      coverage: {
+        src: ['server/**/*.spec.js'], // specifying file patterns works as well
+        options: {
+          coverageFolder: 'coverage',
+          mask: '*.spec.js',
+          mochaOptions: ['--compilers', 'js:babel/register', '-R', 'spec'], // any extra options
+          istanbulOptions: ['--harmony']
+        }
+      }
+    },
+
     protractor: {
       options: {
         configFile: 'protractor.conf.js'
@@ -638,7 +651,7 @@ module.exports = function (grunt) {
       'test:server'
     ]);
   });
-  
+
   grunt.registerTask('build', [
     'clean:dist',
     'injector:less',
@@ -663,4 +676,6 @@ module.exports = function (grunt) {
     'test',
     'build'
   ]);
+
+  grunt.registerTask('coverage', ['mocha_istanbul:coverage']);
 };
