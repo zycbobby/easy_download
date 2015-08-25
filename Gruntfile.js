@@ -638,7 +638,7 @@ module.exports = function (grunt) {
       'test:server'
     ]);
   });
-
+  
   grunt.registerTask('build', [
     'clean:dist',
     'injector:less',
