@@ -105,7 +105,7 @@
   },
   "scripts": {
     "start": "node server/app.js",
-    "test": "grunt test",
+    "test": "grunt coverage",
     "coveralls" : "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "update-webdriver": "node node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update"
   },
