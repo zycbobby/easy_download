@@ -4,6 +4,11 @@ node_js:
 env:
   global:
   - secure: TsntN8YMeA4U45oh8mzbKSCmO1NDXc59ZYWgQ+w509+ckP/lYmtGy0Pp3JB6SBitLReOr1HUlZDlKjXW6G5IovyMBmPWXL4mR8ffAwNqkco+D98b/rX/+VaHrn2qy2q7875XQzxbiCXaCu8nue9iT1bty4d4VQOPb3K6CzzULVuzj+b/1YjZkyw3Bd7fL241PPe2zdRlYbah7CFdv0ODAkgaUrtiSkD5PDecw9c+P6gQb5jdNseVGMLDiBNvA45G7dZJ9EczuaZnyikt9RxXz+WMc9o31XAXr9RmCzkDL1986XD7xkzC67BpO59KB+fT86rVjWzCGtZ4BGjeZzt7QKWS9YlbjVgOXVPEPdjVBbyI6XExc5V//elEFSyi0e8YueZdM4qhBfcUTBkZlC1X1FPDemyBMlAwK/e2Q0hkvI4DKee/cwmOtPE6yhbe5PqtiFgnoi45oIUnG6O3yUyD9UGDmA6i+Wimx2A3UDoJ7LFtXLPDky/U5bSBKWmU1t+7Ld60aauWfLnJFsiW1elTOsFcZti4TdhsDnR34BXrbfGgCr9ulrkdYKQm6sy9Q3FXAD9H7xYqHiocpmmZLfuHiYNZm9fp+Org/beoxPi0C2tQ4uR2ZsQO1XAjGXnzEWTDx+ff1y5zlcY6YCDTPgdvzzIfE4/FopEQGbmvMdPq6rY=
+
+cache:
+  directories:
+  - node_modules
+  - client/bower_components
 before_script:
 - npm install -g bower grunt-cli
 - bower install
