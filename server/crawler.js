@@ -17,3 +17,9 @@ var thingJob = new ThingJob();
 thingJob.start();
 
 logger.info('Crawler has been started, thing cron:' + config.thingCron + ' item cron : ' + config.itemCron);
+
+
+module.exports = {
+  itemJob : itemJob,
+  thingJob: thingJob
+};

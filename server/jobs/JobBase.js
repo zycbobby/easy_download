@@ -8,7 +8,7 @@ var assert = require('assert');
  * @constructor
  */
 function Job(jobName) {
-  this.jobName = jobName;
+  this.jobName = '[' + jobName + ']';
 }
 
 Job.prototype.onError = function(err){
