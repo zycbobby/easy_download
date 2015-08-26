@@ -11,7 +11,7 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 var config = require('../config/environment');
 var Promise = require('bluebird');
 var _ = require('lodash');
-var logger = require('../util/logger');
+var logger = require('./logger');
 
 function* getThings(items) {
   var things = yield Promise.settle(items.map(item => {

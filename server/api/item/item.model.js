@@ -6,10 +6,7 @@ var mongoose = require('mongoose'),
     Q = require('q');
 
 var config = require('../../config/environment');
-var log4js = require('log4js');
-log4js.configure(config.log4js);
-var logger = log4js.getLogger('normal');
-logger.setLevel('INFO');
+var logger = require('../../util/logger');
 
 var ItemSchema = new Schema({
   url: { type: String, index: { unique: true }},

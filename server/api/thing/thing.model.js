@@ -9,14 +9,8 @@ var mongoose = require('mongoose'),
 var Promise = require('bluebird');
 var co = require('co');
 var Item = require('../item/item.model');
-var es = Promise.promisifyAll(require('elasticsearch'));
 var config = require('../../config/environment');
-var esConfig = config.elasticSearch;
-
-var log4js = require('log4js');
-log4js.configure(config.log4js);
-var logger = log4js.getLogger('normal');
-logger.setLevel('INFO');
+var logger = require('../../util/logger');
 
 var ThingSchema = new Schema({
   title: {
@@ -147,13 +141,10 @@ ThingSchema.path('source').validate(function (value, cb) {
 
 // Error handling problem
 //
-var client = new es.Client({
-  host: esConfig.host,
-  log: esConfig.loglevel
-});
+var client = require('../../config/esConnection');
 
 ThingSchema.post('save', function (thing) {
-  if (thing.wasNew && !esConfig.notInsert) {
+  if (thing.wasNew && !config.elasticSearch.notInsert) {
     co(function* () {
       try {
         ThingModel.saveEs(thing);
@@ -173,8 +164,8 @@ ThingSchema.post('save', function (thing) {
 
 ThingModel.saveEs = function* (thing) {
   var response = yield client.index({
-    index: esConfig.index,
-    type: esConfig.type,
+    index: config.elasticSearch.index,
+    type: config.elasticSearch.type,
     id: '' + thing._id,
     body: thing
   });

@@ -2,14 +2,7 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 var Promise = require('bluebird');
 var co = require('co');
-var es = Promise.promisifyAll(require('elasticsearch'));
-var config = require('../config/environment');
-var esConfig = config.elasticSearch;
-
-var client = new es.Client({
-  host: esConfig.host,
-  log: esConfig.loglevel
-});
+var client = require('../config/esConnection');
 
 function* doSegment(str) {
   var response = yield client.indices.validateQuery({
