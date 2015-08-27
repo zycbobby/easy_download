@@ -41,6 +41,11 @@ ItemSchema.methods = {
       logger.error(parserModule + ' not exists, omit ' + this.url);
       return Q.reject(parserModule + ' not exists, omit ' + this.url);
     }
+  },
+
+  setCrawled: function* (){
+    this.crawled = true;
+    yield this.save();
   }
 };
 

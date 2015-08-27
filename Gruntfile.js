@@ -677,5 +677,5 @@ module.exports = function (grunt) {
     'build'
   ]);
 
-  grunt.registerTask('coverage', ['mocha_istanbul:coverage']);
+  grunt.registerTask('coverage', ['env:test', 'mocha_istanbul:coverage']);
 };
