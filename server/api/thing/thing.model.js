@@ -141,7 +141,7 @@ ThingSchema.methods = {
       id: '' + this._id,
       body: this
     });
-    this.setIndexed();
+    yield this.setIndexed();
   },
 
   setIndexed: function* (){
