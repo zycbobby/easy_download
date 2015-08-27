@@ -129,10 +129,34 @@ ThingSchema.pre('save', function (next) {
 });
 
 
+/**
+ * This should be defined before generate model
+ * @type {{saveEs: Function, setIndexed: Function}}
+ */
+ThingSchema.methods = {
+  saveEs : function* (){
+    var response = yield client.index({
+      index: config.elasticSearch.index,
+      type: config.elasticSearch.type,
+      id: '' + this._id,
+      body: this
+    });
+    yield this.setIndexed(true);
+  },
+
+  setIndexed: function* (){
+    this.indexed = true;
+    yield this.save();
+  }
+
+};
+
 var ThingModel = mongoose.model('Thing', ThingSchema);
-module.exports = ThingModel;
 
 ThingSchema.path('source').validate(function (value, cb) {
+  if (!this.wasNew) {
+    return cb(true);
+  }
   return ThingModel.findOne({source: value}).exec(function (err, model) {
     return cb(!model);
   });
@@ -164,7 +188,6 @@ ThingSchema.post('save', function (thing) {
   }
 });
 
-
 ThingModel.saveEs = function* (thing) {
   var response = yield client.index({
     index: config.elasticSearch.index,
@@ -182,3 +205,4 @@ function handleError(err) {
   }
 }
 
+module.exports = ThingModel;
