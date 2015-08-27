@@ -133,8 +133,7 @@ ThingSchema.pre('save', function (next) {
  * This should be defined before generate model
  * @type {{saveEs: Function, setIndexed: Function}}
  */
-ThingSchema.methods = {
-  saveEs : function* (){
+ThingSchema.methods.saveEs =  function* (){
     var response = yield client.index({
       index: config.elasticSearch.index,
       type: config.elasticSearch.type,
@@ -142,12 +141,11 @@ ThingSchema.methods = {
       body: this
     });
     yield this.setIndexed();
-  },
+};
 
-  setIndexed: function* (){
+ThingSchema.methods.setIndexed = function* (){
     this.indexed = true;
     yield this.save();
-  }
 };
 
 var ThingModel = mongoose.model('Thing', ThingSchema);
