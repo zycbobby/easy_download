@@ -57,18 +57,23 @@ describe('Test Mongoose API', function() {
     });
   });
 
-  it("should crawl items", function(done){
-    co(function *() {
-      var url = "http://www.smzdm.com/p1";
-      var doc = yield Source.findOne({"url" : url}).exec();
-      var items = yield doc.getItems();
-      items.should.be.instanceOf(Array);
-    }).then(done).catch(function(err){
-      done(err);
-    }).catch(err => {
-      done(err);
+
+  describe('crawl suite', function(){
+    it("should crawl items", function(done){
+      co(function *() {
+        yield sources.map(function* (t){
+          var doc = yield Source.findOne({"url" : t.url}).exec();
+          var items = yield doc.getItems();
+          items.should.be.instanceOf(Array);
+        });
+      }).then(done).catch(function(err){
+        done(err);
+      }).catch(err => {
+        done(err);
+      });
     });
   });
+
 });
 
 describe('GET /api/sources', function() {
