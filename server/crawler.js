@@ -8,11 +8,11 @@ var logger = require('./util/logger');
 console.log('mongo uri : ' + config.mongo.uri);
 require('./config/mongoConnection.js');
 
-var ItemJob = require('./jobs/crawlItemJob');
+var ItemJob = require('./jobs/ItemJob');
 var itemJob = new ItemJob();
 itemJob.start();
 
-var ThingJob = require('./jobs/crawlThingJob');
+var ThingJob = require('./jobs/ThingJob');
 var thingJob = new ThingJob();
 thingJob.start();
 

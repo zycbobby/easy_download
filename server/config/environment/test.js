@@ -15,7 +15,7 @@ module.exports = {
 
 
   elasticSearch: {
-    host: 'es.misscatandzuozuo.info',
+    host: 'localhost',
     index: 'mongoindex',
     type: 'thing',
     loglevel: 'warning',
