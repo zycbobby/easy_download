@@ -18,7 +18,7 @@ describe('Test Job Base', function () {
   });
 
   it("should not be started", function (done) {
-    should(job.start).throw(assert.AssertionError);
+    should(job.start).throw(Error);
     done();
   });
 });

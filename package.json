@@ -96,7 +96,7 @@
     "mocha": "^2.2.5",
     "open": "~0.0.4",
     "requirejs": "~2.1.11",
-    "should": "~3.3.1",
+    "should": "^7.0.4",
     "supertest": "~0.11.0",
     "time-grunt": "~0.3.1"
   },
@@ -106,7 +106,7 @@
   "scripts": {
     "start": "node server/app.js",
     "test": "grunt coverage",
-    "coveralls" : "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "update-webdriver": "node node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update"
   },
   "private": true
