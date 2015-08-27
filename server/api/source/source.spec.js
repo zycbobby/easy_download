@@ -3,6 +3,73 @@
 var should = require('should');
 var app = require('../../app');
 var request = require('supertest');
+var Source = require('./source.model');
+var co = require('co');
+
+require('../../config/mongoConnection.js');
+
+var sources = [{
+  "url" : "http://www.shihuo.cn"
+}, {
+  "url" : "http://www.smzdm.com/p1"
+}, {
+  "url" : "http://www.etao.com"
+}];
+
+describe('Test Mongoose API', function() {
+
+
+  beforeEach(function(done){
+    //add some test data
+    co(function* () {
+      var doc = yield Source.create(sources);
+    }).then(done).catch(err => {
+      done(err);
+    });
+  });
+
+  afterEach(function(done) {
+    co(function* (){
+      yield Source.remove({}).exec();
+    }).then(done);
+  });
+
+  it("should have 3 sources", function(done){
+    co(function *() {
+      var docs = yield Source.find({}).exec();
+      should([].slice.apply(docs).length).be.equal(3);
+    }).then(done).catch(function(err){
+      done(err);
+    }).catch(err => {
+      done(err);
+    });
+  });
+
+  it("should have host name", function(done){
+    co(function *() {
+      var url = "http://www.smzdm.com/p1";
+      var doc = yield Source.findOne({"url" : url}).exec();
+      should(doc.hostname).be.equal("www.smzdm.com");
+    }).then(done).catch(function(err){
+      done(err);
+    }).catch(err => {
+      done(err);
+    });
+  });
+
+  it("should crawl items", function(done){
+    co(function *() {
+      var url = "http://www.smzdm.com/p1";
+      var doc = yield Source.findOne({"url" : url}).exec();
+      var items = yield doc.getItems();
+      items.should.be.instanceOf(Array);
+    }).then(done).catch(function(err){
+      done(err);
+    }).catch(err => {
+      done(err);
+    });
+  });
+});
 
 describe('GET /api/sources', function() {
 

@@ -185,16 +185,6 @@ ThingSchema.post('save', function (thing) {
     });
   }
 });
-//
-//ThingModel.saveEs = function* (thing) {
-//  var response = yield client.index({
-//    index: config.elasticSearch.index,
-//    type: config.elasticSearch.type,
-//    id: '' + thing._id,
-//    body: thing
-//  });
-//  var res = yield ThingModel.findOneAndUpdate({_id: thing._id}, {$set: {indexed: true}}).exec();
-//};
 
 function handleError(err) {
   if (err) {

@@ -11,7 +11,7 @@ var SourceSchema = new Schema({
   },
   active : {
     type : Boolean,
-    default : true
+    'default' : true
   }
 });
 
@@ -33,7 +33,6 @@ SourceSchema.methods = {
     }
 
     var crawler = new Crawler(this.url);
-
     return crawler.getItems();
   }
 };

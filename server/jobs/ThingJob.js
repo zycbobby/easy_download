@@ -55,7 +55,7 @@ ThingJob.prototype._onTick = function(){
       if (count > 0) {
         things = yield Thing.find({ "indexed" : false}).limit(2).exec();
         var indexedThings = yield things.map(t => {
-          return Thing.saveEs(t);
+          return t.saveEs();
         });
         logger.info(self.jobName + " indexed " + indexedThings.length +" things");
       }

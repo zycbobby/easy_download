@@ -13,7 +13,7 @@ var ItemSchema = new Schema({
   type : Number,
   crawled : {
     type : Boolean,
-    default : false
+    'default' : false
   }
 });
 
