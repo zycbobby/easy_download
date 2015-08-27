@@ -183,8 +183,6 @@ ThingSchema.post('save', function (thing) {
       logger.error('Error in saving es: ' + thing._id);
       logger.error(err);
     });
-  } else {
-    logger.info('thing' + thing._id + ' was not inserted');
   }
 });
 //
