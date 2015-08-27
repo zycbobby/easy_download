@@ -141,7 +141,7 @@ ThingSchema.methods = {
       id: '' + this._id,
       body: this
     });
-    yield this.setIndexed(true);
+    this.setIndexed();
   },
 
   setIndexed: function* (){
@@ -175,9 +175,9 @@ ThingSchema.post('save', function (thing) {
 });
 
 ThingSchema.post('save', function (thing) {
-  if (!config.elasticSearch.notInsert) {
+  if (thing.wasNew && !config.elasticSearch.notInsert) {
     co(function* () {
-      yield ThingModel.saveEs(thing);
+      yield thing.saveEs();
       logger.info('[ThingESClient]' + thing._id + ' was indexed');
     }).catch(function (err) {
       logger.error('Error in saving es: ' + thing._id);
@@ -187,16 +187,16 @@ ThingSchema.post('save', function (thing) {
     logger.info('thing' + thing._id + ' was not inserted');
   }
 });
-
-ThingModel.saveEs = function* (thing) {
-  var response = yield client.index({
-    index: config.elasticSearch.index,
-    type: config.elasticSearch.type,
-    id: '' + thing._id,
-    body: thing
-  });
-  var res = yield ThingModel.findOneAndUpdate({_id: thing._id}, {$set: {indexed: true}}).exec();
-};
+//
+//ThingModel.saveEs = function* (thing) {
+//  var response = yield client.index({
+//    index: config.elasticSearch.index,
+//    type: config.elasticSearch.type,
+//    id: '' + thing._id,
+//    body: thing
+//  });
+//  var res = yield ThingModel.findOneAndUpdate({_id: thing._id}, {$set: {indexed: true}}).exec();
+//};
 
 function handleError(err) {
   if (err) {
