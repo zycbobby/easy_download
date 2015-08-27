@@ -450,7 +450,7 @@ module.exports = function (grunt) {
           mask: '*.spec.js',
           mochaOptions: ['--compilers', 'js:babel/register', '-R', 'spec'], // any extra options
           istanbulOptions: ['--harmony'],
-          timeout: 10000
+          timeout: 1000000
         }
       }
     },
