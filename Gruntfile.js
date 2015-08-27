@@ -449,7 +449,8 @@ module.exports = function (grunt) {
           coverageFolder: 'coverage',
           mask: '*.spec.js',
           mochaOptions: ['--compilers', 'js:babel/register', '-R', 'spec'], // any extra options
-          istanbulOptions: ['--harmony']
+          istanbulOptions: ['--harmony'],
+          timeout: 10000
         }
       }
     },
