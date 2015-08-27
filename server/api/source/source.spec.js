@@ -16,7 +16,7 @@ var sources = [{
   "url" : "http://www.etao.com"
 }];
 
-describe('Test Mongoose API', function() {
+describe('Test Source Mongoose API', function() {
 
 
   beforeEach(function(done){

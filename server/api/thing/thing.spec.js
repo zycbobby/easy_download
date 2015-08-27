@@ -5,6 +5,7 @@ var app = require('../../app');
 var request = require('supertest');
 var co = require('co');
 var Thing = require('./thing.model');
+var config = require('../../config/environment');
 
 var thing = {
   "title" : "MYHABIT、SHOPBOP、Ruelala、GILT 每日更新20日23时、0时",
@@ -39,8 +40,7 @@ var thing = {
   }
 };
 
-
-describe('Test Mongoose API', function(){
+describe('Thing Mongoose API', function(){
   beforeEach(function(done){
     //add some test data
     co(function* () {
@@ -53,17 +53,27 @@ describe('Test Mongoose API', function(){
   afterEach(function(done) {
     co(function* (){
       yield Thing.remove({}).exec();
-    }).then(done);
+    }).then(done).catch(err => {
+      done(err);
+    });
   });
 
 
-  it('test set crawled', function(done){
+  it('set indexed', function(done){
     co(function* (){
       var doc = yield Thing.findOne({"source" : thing.source}).exec();
       doc.should.have.property('indexed', false);
-      yield doc.setIndexed(true);
+      yield doc.setIndexed();
       doc = yield Thing.findOne({"source" : thing.source}).exec();
       doc.should.have.property('indexed', true);
+    }).then(done).catch(err => {
+      done(err);
+    })
+  });
+
+  it('save to elastic search', function(done){
+    co(function* (){
+
     }).then(done).catch(err => {
       done(err);
     })
