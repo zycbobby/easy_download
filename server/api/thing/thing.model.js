@@ -148,7 +148,6 @@ ThingSchema.methods = {
     this.indexed = true;
     yield this.save();
   }
-
 };
 
 var ThingModel = mongoose.model('Thing', ThingSchema);

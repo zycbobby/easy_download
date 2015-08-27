@@ -48,12 +48,12 @@ ThingJob.prototype._onTick = function(){
       logger.info( self.jobName + " finished thing crawling, inserted " + savedThings.length + " things");
 
       // count unIndexed thing
-      var count = yield Thing.count({ "indexed" : false}).exec();
+      var count = yield Thing.count({ "indexed" : false, "source" : { "$nin": things.map( t => { return t.source}) }}).exec();
       logger.info(self.jobName +  " unindexed thing : " + count);
 
       // find unindexed thing
       if (count > 0) {
-        things = yield Thing.find({ "indexed" : false}).limit(2).exec();
+        things = yield Thing.find({ "indexed" : false, "source" : { "$nin": things.map( t => { return t.source}) }}).limit(2).exec();
         var indexedThings = yield things.map(t => {
           return t.saveEs();
         });
