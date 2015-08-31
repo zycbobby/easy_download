@@ -65,7 +65,6 @@ etaoCrawler.prototype.getOneThing = function() {
         } else {
           defer.reject('item was not found on ' + self.url);
         }
-
       });
     }
 

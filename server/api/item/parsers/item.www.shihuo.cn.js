@@ -59,6 +59,7 @@ shihuoCrawler.prototype.getOneThing = function() {
 
       defer.resolve(thing);
     } else {
+
       defer.reject(new Error('cannot find shihuo type ' + self.type + ' for url ' + self.url));
     }
 

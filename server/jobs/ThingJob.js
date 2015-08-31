@@ -41,7 +41,7 @@ ThingJob.prototype._onTick = function(){
     co(function* () {
       var items = yield Item.find({crawled: false}).limit(2).exec();
       var things = yield crawler.getThings(items);
-      var savedThings = yield things.map( thing => {
+      var savedThings = yield things.map(function* (thing){
         return Thing.create(thing);
       });
 
@@ -62,7 +62,7 @@ ThingJob.prototype._onTick = function(){
     }).then(function(){
       self.isThingGetting = false;
     }).catch(function (err) {
-      this.onError(err);
+      self.onError(err);
       self.isThingGetting = false;
     });
   } else {

@@ -9,7 +9,7 @@ var util = require('util');
 var smzdmCrawler = require('./item.www.smzdm.com.js');
 
 function haitaoCrawler(item) {
-  smzdmCrawler.call(this, item.url);
+  smzdmCrawler.call(this, item);
   this.item = item;
 }
 
