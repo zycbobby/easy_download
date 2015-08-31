@@ -8,8 +8,9 @@
 var util = require('util');
 var smzdmCrawler = require('./item.www.smzdm.com.js');
 
-function haitaoCrawler(url) {
-  smzdmCrawler.call(this, url);
+function haitaoCrawler(item) {
+  smzdmCrawler.call(this, item.url);
+  this.item = item;
 }
 
 util.inherits(haitaoCrawler, smzdmCrawler);

@@ -37,6 +37,7 @@ smzdmCrawler.prototype.getItems = function() {
     for (var i = 0; i < articleDivs.length; i++) {
       var item = new Item();
       item.url = $(articleDivs[i]).find('h4.itemName > a')[0].attribs.href;
+      item.thumbnail = $(articleDivs[i]).find('a > img')[0].attribs.src;
       item.type = Number(articleDivs[i].attribs.articleid.split('_')[0]);
       if (item.type === 1 || item.type === 5) {
         items.push(item);

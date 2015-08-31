@@ -46,12 +46,13 @@ shihuoCrawler.prototype.getItems = function() {
 
     var $ = res.jquery;
     var items = [];
-    var articles = $('div.select-list > ul > li[class!=top] div.t2 > a');
+    var articles = $('div.select-list > ul > li[class!=top]');
     for (var i = 0; i < articles.length; i++) {
       var item = new Item();
-      var href = articles[i].attribs.href;
+      var href = $(articles[i]).find('div.t2 > a')[0].attribs.href;
       var urlInfo = url.parse(href, true);
       item.url = href.replace(urlInfo.hash, '');
+      item.thumbnail = $(articles[i]).find('div.t1 img')[0].attribs.src;
       item.type = getShihuoType(item.url);
       if (item.type === 1 || item.type === 5) {
         items.push(item);

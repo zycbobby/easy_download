@@ -11,9 +11,10 @@ var Thing = require('../../thing/thing.model');
 var Q = require('q');
 var url = require('url');
 
-function shihuoCrawler(url, type) {
-  commonCrawler.call(this, url);
-  this.type = type;
+function shihuoCrawler(item) {
+  commonCrawler.call(this, item.url);
+  this.type = item.type;
+  this.item = item;
 }
 
 util.inherits(shihuoCrawler, commonCrawler);
@@ -38,6 +39,7 @@ shihuoCrawler.prototype.getOneThing = function() {
 
       thing.title = article.find('h2.article-title').first().text().trim();
       thing.source = self.url;
+      thing.thumbnail = self.item.thumbnail;
       thing.info = {
         price : {
           price : article.find('h2.article-title > span').first().text().trim()

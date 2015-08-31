@@ -11,6 +11,7 @@ var logger = require('../../util/logger');
 var ItemSchema = new Schema({
   url: { type: String, index: { unique: true }},
   type : Number,
+  thumbnail: String,
   crawled : {
     type : Boolean,
     'default' : false
@@ -35,11 +36,12 @@ ItemSchema.methods = {
         logger.error('parser for ' + urlInfo.hostname + ' is not defined');
         return [];
       }
-      var crawler = new Crawler(this.url, this.type);
+      var crawler = new Crawler(this);
       return crawler.getOneThing();
     } catch(e) {
-      logger.error(parserModule + ' not exists, omit ' + this.url);
-      return Q.reject(parserModule + ' not exists, omit ' + this.url);
+      logger.error(e);
+      logger.error('error in parsing ' + this.url);
+      return Q.reject(e);
     }
   },
 
@@ -49,10 +51,5 @@ ItemSchema.methods = {
   }
 };
 
-
-
 var ItemModel = mongoose.model('Item', ItemSchema);
 module.exports = ItemModel;
-
-
-

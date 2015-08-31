@@ -40,13 +40,15 @@ etaoCrawler.prototype.getItems = function() {
 
     var $ = res.jquery;
     var items = [];
-    var articles = $('#J_FeedList').find('div.feed[data-wankeid] h3 a');
+    var articles = $('#J_FeedList').find('div.feed[data-wankeid]');
     for (var i = 0; i < articles.length; i++) {
       var item = new Item();
-      var href = articles[i].attribs.href;
+      var article = $(articles[i]).find('h3 a')[0];
+      var href = article.attribs.href;
       var urlInfo = url.parse(href, true);
       item.url = href.replace(urlInfo.hash, '');
       item.type = getEtaoType(item.url);
+      item.thumbnail = $(articles[i]).find('img')[0].attribs.src;
       if (item.type === 1) {
         items.push(item);
       }

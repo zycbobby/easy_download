@@ -22,6 +22,7 @@ var ThingSchema = new Schema({
     type: String,
     index: {unique: true}
   },
+  thumbnail: String,
   info: {
     price: {
       price: String,
