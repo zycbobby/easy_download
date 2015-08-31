@@ -11,8 +11,9 @@ var Thing = require('../../thing/thing.model');
 var Q = require('q');
 var url = require('url');
 
-function smzdmCrawler(url) {
-  commonCrawler.call(this, url);
+function smzdmCrawler(item) {
+  commonCrawler.call(this, item.url);
+  this.item = item;
 }
 
 util.inherits(smzdmCrawler, commonCrawler);
@@ -35,6 +36,7 @@ smzdmCrawler.prototype.getOneThing = function() {
     var thing = new Thing();
     thing.title = article.find('h1.article_title').first().text().trim();
     thing.source = self.url;
+    thing.thumbnail = self.item.thumbnail;
     thing.info = {
       price : {
         price : article.find('h1 > span.red').first().text().trim()

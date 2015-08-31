@@ -36,8 +36,8 @@ util.inherits(ThingJob, Job);
 
 ThingJob.prototype._onTick = function(){
   var self = this;
-  if (!this.isThingGetting) {
-    this.isThingGetting = true;
+  if (!self.isThingGetting) {
+    self.isThingGetting = true;
     co(function* () {
       var items = yield Item.find({crawled: false}).limit(2).exec();
       var things = yield crawler.getThings(items);

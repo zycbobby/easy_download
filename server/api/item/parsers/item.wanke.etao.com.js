@@ -12,9 +12,10 @@ var Item = require('../item.model');
 var Q = require('q');
 var url = require('url');
 
-function etaoCrawler(url, type) {
-  commonCrawler.call(this, url);
-  this.type = type;
+function etaoCrawler(item) {
+  commonCrawler.call(this, item.url);
+  this.type = item.type;
+  this.item = item;
 }
 
 util.inherits(etaoCrawler, commonCrawler);
@@ -40,6 +41,7 @@ etaoCrawler.prototype.getOneThing = function() {
 
       thing.title = article.find('h1.title').first().text().trim();
       thing.source = self.url;
+      thing.thumbnail = self.item.thumbnail;
       thing.info = {
         price : {
           price : article.find('h1.title').first().text().trim()

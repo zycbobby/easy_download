@@ -36,13 +36,13 @@ ItemJob.prototype.constructor = ItemJob;
 
 ItemJob.prototype._onTick = function(){
   var self = this;
-  if (!this.isItemGetting) {
-    this.isItemGetting = true;
+  if (!self.isItemGetting) {
+    self.isItemGetting = true;
     co(function* () {
       var sources = yield Source.find({active: true}).exec();
       var items = yield crawler.getItems(sources);
       var count = 0;
-      for(idx in items) {
+      for(var idx in items) {
         var item = items[idx];
         var doc = yield Item.findOne({ "url" : item.url }).exec();
         if (!doc) {
@@ -54,7 +54,7 @@ ItemJob.prototype._onTick = function(){
     }).then(function(){
       self.isItemGetting = false;
     }).catch(function (err) {
-      this.onError(err);
+      self.onError(err);
       self.isItemGetting = false;
     });
   } else {

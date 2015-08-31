@@ -60,11 +60,16 @@ describe('Test Source Mongoose API', function() {
 
   describe('crawl suite', function(){
     it("should crawl items", function(done){
+      this.timeout(20000);
       co(function *() {
         yield sources.map(function* (t){
           var doc = yield Source.findOne({"url" : t.url}).exec();
           var items = yield doc.getItems();
           items.should.be.instanceOf(Array);
+          items.map( i => {
+            i.should.have.property('url');
+            i.should.have.property('thumbnail');
+          });
         });
       }).then(done).catch(function(err){
         done(err);

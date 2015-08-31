@@ -4,84 +4,36 @@
  */
 
 'use strict';
-var mongoose = require('mongoose-q')(require('mongoose'));
+
+// Set default node environment to development
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+
+var express = require('express');
+var mongoose = require('mongoose');
+var config = require('./environment');
+var co = require('co');
+
+require('./mongoConnection.js');
+
 var Thing = require('../api/thing/thing.model');
 var User = require('../api/user/user.model');
 var Item = require('../api/item/item.model');
 var Source = require('../api/source/source.model');
 
-User.findQ().then(function(data) {
-  return User.removeQ();
-}).then(function(){
-  return User.createQ(
-    {
-      provider: 'local',
-      name: 'Test User',
-      email: 'test@test.com',
-      password: 'test',
-      registerId: '123'
-    }, {
-      provider: 'local',
-      role: 'admin',
-      name: 'Admin',
-      email: 'admin@admin.com',
-      password: 'admin',
-      registerId: '567'
-    }
-  )
-}).then(function(){
-  return Thing.removeQ();
-}).then(function(admin) {
-  //return Thing.createQ({
-  //  title : 'SHARP 夏普 KC-WB6-W 家用型 空气净化器+凑单品',
-  //  source : 'http://www.smzdm.com/p/664363',
-  //  info : {
-  //    price : {
-  //      price : 1787,
-  //      unit : 'rmb'
-  //    },
-  //
-  //    tags : ['KC-WB6-W', '防污染', '国内优惠','家用空气净化器'],
-  //
-  //    provider : {
-  //      name : '苏宁易购',
-  //      host : 'http://product.suning.com/',
-  //      productUrl : 'http://product.suning.com/0000000000/102687666.html?utm_source=union&utm_medium=C&utm_campaign=4410&utm_content=4303',
-  //    },
-  //
-  //    thumbs: {
-  //      up : 7,
-  //      down : 2
-  //    },
-  //
-  //    images : [
-  //      {
-  //        url : 'http://y.zdmimg.com/201503/10/54fe484c9c86d.jpg_e600.jpg'
-  //      },
-  //      {
-  //        url : 'http://ym.zdmimg.com/201503/30/5518ead1cd04a4898.png_e600.jpg'
-  //      }
-  //    ]
-  //  }
-  //
-  //});
-}).done();
+var sources = [{
+  url : 'http://www.smzdm.com/p1'
+}, {
+  url : 'http://www.shihuo.cn'
+}, {
+  url : 'http://www.etao.com'
+}];
 
-Source.removeQ().then(function(){
-  return Source.createQ({
-    url : 'http://www.smzdm.com/p1'
-  }, {
-      url : 'http://www.shihuo.cn'
-  }, {
-    url : 'http://www.etao.com'
-  });
-}).done();
+co(function*(){
+  yield Source.remove().exec();
+  yield Source.create(sources);
+  yield Item.remove().exec();
+  process.exit(0);
+}).catch(err => {
+  console.log(err);
+});
 
-Item.removeQ().then(function(){
-  // remove this because the crawler can create item now
-  // return Item.createQ({
-  //  url : 'http://www.smzdm.com/p/664363'
-  //});
-
-  return true;
-}).done();
